@@ -17,6 +17,12 @@ const userSchema = mongoose.Schema({
     confirmPassword: {
         type: String,
     },
+
+    profile_pic : {
+        type :String,
+        default : "" 
+    },
+
 }, { timestamps: true }); // createdAt & updatedAt
 
 const User = mongoose.model("User", userSchema);

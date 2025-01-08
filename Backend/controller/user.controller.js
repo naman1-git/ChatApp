@@ -4,38 +4,54 @@ import createTokenAndSaveCookie from "../jwt/generateToken.js";
 
 export const signup = async (req, res) => {
   const { fullname, email, password, confirmPassword } = req.body;
+
   try {
+    // Validate passwords
     if (password !== confirmPassword) {
       return res.status(400).json({ error: "Passwords do not match" });
     }
-    const user = await User.findOne({ email });
-    if (user) {
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({ error: "User already registered" });
     }
-    // Hashing the password
+
+    // Hash the password
     const hashPassword = await bcrypt.hash(password, 10);
+
+    // Get Cloudinary URL
+    const profilePicUrl = req.file ? req.file.path : "";
+
+    // Create a new user
     const newUser = await new User({
       fullname,
       email,
       password: hashPassword,
+      profile_pic: profilePicUrl,
     });
+
     await newUser.save();
-    if (newUser) {
-      createTokenAndSaveCookie(newUser._id, res);
-      res.status(201).json({
-        message: "User created successfully",
-        user: {
-          _id: newUser._id,
-          fullname: newUser.fullname,
-          email: newUser.email,
-        },
-      });
-    }
+
+    // Create token and send response
+    createTokenAndSaveCookie(newUser._id, res);
+
+    res.status(201).json({
+      message: "User created successfully",
+      user: {
+        _id: newUser._id,
+        fullname: newUser.fullname,
+        email: newUser.email,
+        profile_pic: newUser.profile_pic,
+      },
+    });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -51,6 +67,7 @@ export const login = async (req, res) => {
         _id: user._id,
         fullname: user.fullname,
         email: user.email,
+        profile_pic: user.profile_pic,
       },
     });
   } catch (error) {

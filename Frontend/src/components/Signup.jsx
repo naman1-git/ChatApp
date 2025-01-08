@@ -20,6 +20,31 @@ function Signup() {
     return value === password || "Passwords do not match";
   };
 
+  const handleUpload = async(event)=>{
+    const file = event.target.files[0];
+    if(!file){
+      return;
+    }
+    const data = new FormData();
+    data.append('file', file);
+    data.append('upload_preset', 'chat app');
+    data.append('cloud_name', 'ddm7nxdwd');
+
+    const res = await fetch('https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload',
+      {
+        method: 'POST',
+        body: data
+      })
+
+      const uploadedImageURL = await res.json();
+      console.log(uploadedImageURL.url);
+
+     
+
+    console.log(file);
+
+  }
+
   const onSubmit = async (data) => {
     const userInfo = {
       fullname: data.fullname,
@@ -161,6 +186,12 @@ function Signup() {
               {errors.confirmPassword.message}
             </span>
           )}
+
+         
+          <label className="input input-bordered flex items-center gap-2">
+            <input type="file" className="grow" placeholder="Profile Picture" onChange={handleUpload}>
+            </input>
+          </label>
 
           {/* Text & Button */}
           <div className="flex justify-center">
