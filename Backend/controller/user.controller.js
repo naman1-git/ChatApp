@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import createTokenAndSaveCookie from "../jwt/generateToken.js";
 
 export const signup = async (req, res) => {
-  const { fullname, email, password, confirmPassword } = req.body;
+  const { fullname, email, password, confirmPassword , profile_pic } = req.body;
 
   try {
     // Validate passwords
@@ -20,15 +20,12 @@ export const signup = async (req, res) => {
     // Hash the password
     const hashPassword = await bcrypt.hash(password, 10);
 
-    // Get Cloudinary URL
-    const profilePicUrl = req.file ? req.file.path : "";
-
     // Create a new user
     const newUser = await new User({
       fullname,
       email,
       password: hashPassword,
-      profile_pic: profilePicUrl,
+      profile_pic,
     });
 
     await newUser.save();

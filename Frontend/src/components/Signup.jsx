@@ -3,9 +3,14 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useAuth } from "../context/AuthProvider";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+
+
+
 import toast from "react-hot-toast";
 function Signup() {
   const [authUser, setAuthUser] = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -20,37 +25,59 @@ function Signup() {
     return value === password || "Passwords do not match";
   };
 
-  const handleUpload = async(event)=>{
+  const [profilePic, setProfilePic] = useState("");
+
+  const handleUpload = async (event) => {
+    setIsUploading(true);
     const file = event.target.files[0];
-    if(!file){
+    if (!file) {
+      toast.error("No file selected");
       return;
     }
+  
     const data = new FormData();
-    data.append('file', file);
-    data.append('upload_preset', 'chat app');
-    data.append('cloud_name', 'ddm7nxdwd');
-
-    const res = await fetch('https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload',
-      {
-        method: 'POST',
-        body: data
-      })
-
-      const uploadedImageURL = await res.json();
-      console.log(uploadedImageURL.url);
-
-     
-
-    console.log(file);
-
-  }
+    data.append("file", file);
+    data.append("upload_preset", "chat app");
+    data.append("cloud_name", "ddm7nxdwd");
+  
+    try {
+      console.log("Uploading file to Cloudinary...");
+      const res = await fetch("https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload", {
+        method: "POST",
+        body: data,
+      });
+  
+      const uploadedImage = await res.json();
+      console.log("Cloudinary Response: ", uploadedImage);
+  
+      if (uploadedImage.url) {
+        setProfilePic(uploadedImage.url);
+        toast.success("Profile picture uploaded successfully");
+        console.log("Profile Pic URL Set: ", uploadedImage.url);
+      } else {
+        toast.error("Failed to retrieve uploaded image URL");
+      }
+    } catch (error) {
+      console.error("Error uploading file: ", error);
+      toast.error("Failed to upload profile picture");
+    }
+    setIsUploading(false);
+  };
 
   const onSubmit = async (data) => {
+    if (!profilePic) {
+      toast.error("Please upload a profile picture before signing up.");
+      return;
+    }
+
+
+    
     const userInfo = {
       fullname: data.fullname,
       email: data.email,
       password: data.password,
       confirmPassword: data.confirmPassword,
+      profile_pic: profilePic,
     };
     // console.log(userInfo);
     await axios
@@ -188,10 +215,15 @@ function Signup() {
           )}
 
          
-          <label className="input input-bordered flex items-center gap-2">
-            <input type="file" className="grow" placeholder="Profile Picture" onChange={handleUpload}>
-            </input>
-          </label>
+          <>
+    <input
+      type="file"
+      onChange={handleUpload}
+      required
+    />
+    {isUploading && <p className="text-blue-500">Uploading...</p>}
+    <button type="submit" disabled={isUploading}>Sign Up</button>
+  </>
 
           {/* Text & Button */}
           <div className="flex justify-center">
