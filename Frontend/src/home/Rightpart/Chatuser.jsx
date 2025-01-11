@@ -6,14 +6,17 @@ import { CiMenuFries } from "react-icons/ci";
 function Chatuser() {
   const { selectedConversation } = useConversation();
   const { onlineUsers } = useSocketContext();
+
   const getOnlineUsersStatus = (userId) => {
     return onlineUsers.includes(userId) ? "Online" : "Offline";
   };
 
+  const status = getOnlineUsersStatus(selectedConversation._id);
+  
   return (
-    <div className=" pl-5 pt-5 h-[12vh] flex space-x-4 bg-gray-700 hover:bg-gray-600 duration-300">
+    <div className="pl-5 pt-5 h-[12vh] flex space-x-4 bg-gray-700 hover:bg-gray-600 duration-300">
       <div>
-        <div className="avatar online">
+        <div className={`avatar ${status === 'Online' ? 'online' : 'offline'}`}>
           <div className="w-14 rounded-full">
             <img
               src={selectedConversation.profile_pic}
@@ -23,9 +26,9 @@ function Chatuser() {
         </div>
       </div>
       <div>
-        <h1 className="text-xl">{selectedConversation.name}</h1>
-        <span className="text-sm">
-          {getOnlineUsersStatus(selectedConversation._id)}
+        <h1 className="text-xl">{selectedConversation.fullname}</h1>
+        <span className={`text-sm ${status === 'Online' ? 'text-green-400' : 'text-red-400'}`}>
+          {status}
         </span>
       </div>
     </div>
