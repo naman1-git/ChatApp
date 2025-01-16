@@ -221,15 +221,13 @@ function Signup() {
       onChange={handleUpload}
       required
     />
-    {isUploading && <p className="text-blue-500">Uploading...</p>}
-    <button type="submit" disabled={isUploading}>Sign Up</button>
   </>
 
           {/* Text & Button */}
           <div className="flex justify-center">
               <input
                 type="submit"
-                value="Signup"
+                value="Sign up"
                 className="text-white bg-blue-600 cursor-pointer w-full rounded-lg py-2"
               ></input>
             </div>
