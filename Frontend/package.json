@@ -10,6 +10,8 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@react-three/drei": "^9.121.4",
+        "@react-three/fiber": "^8.17.12",
         "axios": "^1.7.9",
         "cloudinary": "^2.5.1",
         "emoji-picker-react": "^4.12.0",

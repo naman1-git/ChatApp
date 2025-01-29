@@ -33,6 +33,7 @@ function Logout() {
         <button onClick={handleLogout}>
           <TbLogout2 className="text-5xl p-2 hover:bg-gray-600 rounded-lg duration-300" />
         </button>
+       
       </div>
 
    
