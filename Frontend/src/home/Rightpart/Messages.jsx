@@ -21,7 +21,7 @@ function Messages() {
   return (
     <div
       className="flex-1 overflow-y-auto"
-      style={{ minHeight: "calc(92vh - 8vh)" }}
+      style={{ minHeight: "calc(90vh - 8vh)" }}
     >
       {loading ? (
         <Loading />

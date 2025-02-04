@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useAuth } from "../context/AuthProvider";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-
-
-
 import toast from "react-hot-toast";
+
 function Signup() {
   const [authUser, setAuthUser] = useAuth();
   const [isUploading, setIsUploading] = useState(false);
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [userOtp, setUserOtp] = useState("");
+  const [tempUserData, setTempUserData] = useState(null);
+  const [profilePic, setProfilePic] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -19,15 +22,13 @@ function Signup() {
   } = useForm();
 
   const password = watch("password", "");
-  const confirmPassword = watch("confirmPassword", "");
 
   const validatePasswordMatch = (value) => {
     return value === password || "Passwords do not match";
   };
 
-  const [profilePic, setProfilePic] = useState("");
-
   const handleUpload = async (event) => {
+    // ... (keeping the existing upload logic)
     setIsUploading(true);
     const file = event.target.files[0];
     if (!file) {
@@ -41,19 +42,16 @@ function Signup() {
     data.append("cloud_name", "ddm7nxdwd");
   
     try {
-      console.log("Uploading file to Cloudinary...");
       const res = await fetch("https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload", {
         method: "POST",
         body: data,
       });
   
       const uploadedImage = await res.json();
-      console.log("Cloudinary Response: ", uploadedImage);
   
       if (uploadedImage.url) {
         setProfilePic(uploadedImage.url);
         toast.success("Profile picture uploaded successfully");
-        console.log("Profile Pic URL Set: ", uploadedImage.url);
       } else {
         toast.error("Failed to retrieve uploaded image URL");
       }
@@ -64,186 +62,242 @@ function Signup() {
     setIsUploading(false);
   };
 
+  const generateAndSendOTP = async (email) => {
+    // ... (keeping the existing OTP logic)
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(otp);
+
+    try {
+      await axios.post("/api/user/send-otp", {
+        email,
+        otp,
+      });
+      toast.success("OTP sent to your email");
+      return true;
+    } catch (error) {
+      toast.error("Failed to send OTP");
+      return false;
+    }
+  };
+
+  const verifyOTP = () => {
+    if (userOtp === generatedOtp) {
+      return true;
+    }
+    toast.error("Invalid OTP");
+    return false;
+  };
+
   const onSubmit = async (data) => {
+    // ... (keeping the existing submit logic)
     if (!profilePic) {
       toast.error("Please upload a profile picture before signing up.");
       return;
     }
 
-
-    
-    const userInfo = {
-      fullname: data.fullname,
-      email: data.email,
-      password: data.password,
-      confirmPassword: data.confirmPassword,
-      profile_pic: profilePic,
-    };
-    // console.log(userInfo);
-    await axios
-      .post("/api/user/signup", userInfo)
-      .then((response) => {
-        if (response.data) {
-          toast.success("Signup successful");
+    if (!showOtpInput) {
+      const otpSent = await generateAndSendOTP(data.email);
+      if (otpSent) {
+        setTempUserData({
+          fullname: data.fullname,
+          email: data.email,
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+          profile_pic: profilePic,
+        });
+        setShowOtpInput(true);
+      }
+    } else {
+      if (verifyOTP()) {
+        try {
+          const response = await axios.post("/api/user/signup", tempUserData);
+          if (response.data) {
+            toast.success("Signup successful");
+            localStorage.setItem("ChatApp", JSON.stringify(response.data));
+            setAuthUser(response.data);
+          }
+        } catch (error) {
+          if (error.response) {
+            toast.error("Error: " + error.response.data.error);
+          }
         }
-        localStorage.setItem("ChatApp", JSON.stringify(response.data));
-        setAuthUser(response.data);
-      })
-      .catch((error) => {
-        if (error.response) {
-          toast.error("Error: " + error.response.data.error);
-        }
-      });
+      }
+    }
   };
+
   return (
-    <>
-      <div className="flex h-screen items-center justify-center">
+    <div className="flex h-screen bg-gray-900">
+      {/* Left side with app name */}
+      <div className="w-1/2 flex items-center justify-center">
+        <h1 className="text-6xl font-bold text-white">
+          Connect
+          <span className="block text-lg mt-2 text-gray-400">Where conversations come alive</span>
+        </h1>
+      </div>
+
+      {/* Right side with form */}
+      <div className="w-1/2 flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="border border-black px-6 py-2 rounded-md space-y-3 w-96"
+          className="bg-gray-800 border border-gray-700 px-8 py-6 rounded-lg shadow-xl space-y-4 w-96"
         >
-          <h1 className="text-2xl items-center text-blue-600 font-bold">
-            Messenger
-          </h1>
-
-          <h2 className="text-2xl items-center">
+          <h2 className="text-2xl text-white mb-6">
             Create a new{" "}
-            <span className="text-blue-600 font-semibold">Account</span>
+            <span className="text-blue-400 font-semibold">Account</span>
           </h2>
-         
-          {/* Fullname */}
-          <label className="input input-bordered flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="w-4 h-4 opacity-70"
-            >
-              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
-            </svg>
-            <input
-              type="text"
-              className="grow"
-              placeholder="Fullname"
-              {...register("fullname", { required: true })}
-            />
-          </label>
-          {errors.fullname && (
-            <span className="text-red-500 text-sm font-semibold">
-              This field is required
-            </span>
-          )}
-          {/* Email */}
-          <label className="input input-bordered flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="w-4 h-4 opacity-70"
-            >
-              <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
-              <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
-            </svg>
-            <input
-              type="email"
-              className="grow"
-              placeholder="Email"
-              {...register("email", { required: true })}
-            />
-          </label>
-          {errors.email && (
-            <span className="text-red-500 text-sm font-semibold">
-              This field is required
-            </span>
-          )}
 
-          {/* Password */}
-          <label className="input input-bordered flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="w-4 h-4 opacity-70"
-            >
-              <path
-                fillRule="evenodd"
-                d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <input
-              type="password"
-              className="grow"
-              placeholder="password"
-              {...register("password", { required: true })}
-            />
-          </label>
-          {errors.password && (
-            <span className="text-red-500 text-sm font-semibold">
-              This field is required
-            </span>
-          )}
+          {!showOtpInput ? (
+            <>
+              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="w-4 h-4 opacity-70"
+                >
+                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
+                </svg>
+                <input
+                  type="text"
+                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  placeholder="Fullname"
+                  {...register("fullname", { required: true })}
+                />
+              </label>
+              {errors.fullname && (
+                <span className="text-red-400 text-sm">
+                  This field is required
+                </span>
+              )}
 
-          {/*Confirm Password */}
-          <label className="input input-bordered flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="w-4 h-4 opacity-70"
-            >
-              <path
-                fillRule="evenodd"
-                d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <input
-              type="password"
-              className="grow"
-              placeholder="confirm password"
-              {...register("confirmPassword", {
-                required: true,
-                validate: validatePasswordMatch,
-              })}
-            />
-          </label>
-          {errors.confirmPassword && (
-            <span className="text-red-500 text-sm font-semibold">
-              {errors.confirmPassword.message}
-            </span>
-          )}
+              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="w-4 h-4 opacity-70"
+                >
+                  <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                  <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+                </svg>
+                <input
+                  type="email"
+                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  placeholder="Email"
+                  {...register("email", { required: true })}
+                />
+              </label>
+              {errors.email && (
+                <span className="text-red-400 text-sm">
+                  This field is required
+                </span>
+              )}
 
-         
-          <>
-    <input
-      type="file"
-      onChange={handleUpload}
-      required
-    />
-  </>
+              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="w-4 h-4 opacity-70"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <input
+                  type="password"
+                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  placeholder="Password"
+                  {...register("password", { required: true })}
+                />
+              </label>
+              {errors.password && (
+                <span className="text-red-400 text-sm">
+                  This field is required
+                </span>
+              )}
 
-          {/* Text & Button */}
-          <div className="flex justify-center">
+              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="w-4 h-4 opacity-70"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <input
+                  type="password"
+                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  placeholder="Confirm password"
+                  {...register("confirmPassword", {
+                    required: true,
+                    validate: validatePasswordMatch,
+                  })}
+                />
+              </label>
+              {errors.confirmPassword && (
+                <span className="text-red-400 text-sm">
+                  {errors.confirmPassword.message}
+                </span>
+              )}
+
+              <div className="space-y-2">
+                <label className="block text-sm text-gray-400">Profile Picture</label>
+                <input
+                  type="file"
+                  onChange={handleUpload}
+                  required
+                  className="block w-full text-sm text-gray-400
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-500 file:text-white
+                    hover:file:bg-blue-600"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-gray-400 text-sm">
+                Please enter the OTP sent to your email
+              </p>
               <input
-                type="submit"
-                value="Sign up"
-                className="text-white bg-blue-600 cursor-pointer w-full rounded-lg py-2"
-              ></input>
+                type="text"
+                className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                placeholder="Enter OTP"
+                value={userOtp}
+                onChange={(e) => setUserOtp(e.target.value)}
+                maxLength={6}
+              />
             </div>
-            <p>
-              Have any Account?{" "}
-              <Link
-                to={"/login"}
-                className="text-blue-500 underline cursor-pointer ml-1"
-              >
-                {" "}
-                Login
-              </Link>
-            </p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            {showOtpInput ? "Verify OTP" : "Sign up"}
+          </button>
+
+          <p className="text-gray-400 text-center">
+            Have an Account?{" "}
+            <Link
+              to="/login"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              Login
+            </Link>
+          </p>
         </form>
       </div>
-    </>
+    </div>
   );
 }
 

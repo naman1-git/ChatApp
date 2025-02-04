@@ -20,7 +20,7 @@ function Typesend() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div  className="flex space-x-1 h-[8vh] bg-black items-center">
+      <div  className="flex space-x-1 h-[10vh] bg-black items-center">
         <div className="w-[100%] mx-4 relative">
           {/* Show emoji picker */}
           {showEmojiPicker && (

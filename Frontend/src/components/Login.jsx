@@ -35,24 +35,29 @@ function Login() {
         }
       });
   };
+
   return (
-    <>
-      <div className="flex h-screen items-center justify-center">
+    <div className="flex h-screen bg-gray-900">
+      {/* Left side with app name */}
+      <div className="w-1/2 flex items-center justify-center">
+        <h1 className="text-6xl font-bold text-white">
+          Connect
+          <span className="block text-lg mt-2 text-gray-400">Where conversations come alive</span>
+        </h1>
+      </div>
+
+      {/* Right side with form */}
+      <div className="w-1/2 flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="border border-black px-6 py-2 rounded-md space-y-3 w-96"
+          className="bg-gray-800 border border-gray-700 px-8 py-6 rounded-lg shadow-xl space-y-4 w-96"
         >
-          <h1 className="text-2xl items-center text-blue-600 font-bold">
-            Messenger
-          </h1>
-          <h2 className="text-2xl items-center">
-            Login with your{" "}
-            <span className="text-blue-600 font-semibold">Account</span>
+          <h2 className="text-2xl text-white mb-6">
+            Login to your{" "}
+            <span className="text-blue-400 font-semibold">Account</span>
           </h2>
-        
 
-          {/* Email */}
-          <label className="input input-bordered flex items-center gap-2">
+          <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -63,19 +68,19 @@ function Login() {
               <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
             </svg>
             <input
-              type="text"
-              className="grow"
+              type="email"
+              className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
               placeholder="Email"
               {...register("email", { required: true })}
             />
           </label>
           {errors.email && (
-            <span className="text-red-500 text-sm font-semibold">
+            <span className="text-red-400 text-sm">
               This field is required
             </span>
           )}
-          {/* Password */}
-          <label className="input input-bordered flex items-center gap-2">
+
+          <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -90,38 +95,36 @@ function Login() {
             </svg>
             <input
               type="password"
-              className="grow"
-              placeholder="password"
+              className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+              placeholder="Password"
               {...register("password", { required: true })}
             />
           </label>
           {errors.password && (
-            <span className="text-red-500 text-sm font-semibold">
+            <span className="text-red-400 text-sm">
               This field is required
             </span>
           )}
-          {/* Text & Button */}
 
-          <div className="flex justify-center">
-            <input
-              type="submit"
-              value="Login"
-              className="text-white bg-blue-600 cursor-pointer w-full rounded-lg py-2"
-            ></input>
-          </div>
-          <p>
-            Don't have any Account?{" "}
+          <button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+          >
+            Login
+          </button>
+
+          <p className="text-gray-400 text-center">
+            Don't have an Account?{" "}
             <Link
-              to={"/signup"}
-              className="text-blue-500 underline cursor-pointer ml-1"
+              to="/signup"
+              className="text-blue-400 hover:text-blue-300 underline"
             >
-              {" "}
-              Signup
+              Sign up
             </Link>
           </p>
         </form>
       </div>
-    </>
+    </div>
   );
 }
 
