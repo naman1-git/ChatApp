@@ -11,14 +11,14 @@ import { app, server } from "./SocketIO/server.js";
 dotenv.config();
 
 // middleware
-app.use(express.json());
-app.use(cookieParser());
 app.use(cors(
     {
-        origin: ["https://stellular-gnome-b5e2ae.netlify.app/login", "http://localhost:3000"],
+        origin: ["https://stellular-gnome-b5e2ae.netlify.app", "http://localhost:3000"],
        
     }
 ));
+app.use(express.json());
+app.use(cookieParser());
 
 const PORT = process.env.PORT || 5001;
 const URI = process.env.MONGODB_URI;
