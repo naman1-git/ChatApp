@@ -13,7 +13,12 @@ dotenv.config();
 // middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors(
+    {
+        origin: ["https://stellular-gnome-b5e2ae.netlify.app", "http://localhost:3000"],
+       
+    }
+));
 
 const PORT = process.env.PORT || 5001;
 const URI = process.env.MONGODB_URI;
