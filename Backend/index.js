@@ -11,12 +11,11 @@ import { app, server } from "./SocketIO/server.js";
 dotenv.config();
 
 // middleware
-app.use(cors(
-    {
-        origin: ["https://stellular-gnome-b5e2ae.netlify.app", "http://localhost:3001"],
-       
-    }
-));
+app.use(cors({
+    origin: ["https://stellular-gnome-b5e2ae.netlify.app", "http://localhost:3001"],
+    credentials: true
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
