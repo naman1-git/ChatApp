@@ -8,7 +8,7 @@ export default defineConfig({
     port: 3001,
   proxy: {
   '/api': {
-    target: 'http://localhost:4002', // Ensure this URL is correct
+    target: 'https://chat-app-git-main-naman-adlakhas-projects.vercel.app', // Ensure this URL is correct
     changeOrigin: true,
     secure: false, // If the target uses HTTPS and the certificate is invalid
   },
