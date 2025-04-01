@@ -13,7 +13,7 @@ dotenv.config();
 // middleware
 app.use(cors(
     {
-        origin: ["https://stellular-gnome-b5e2ae.netlify.app", "http://localhost:3000"],
+        origin: ["https://stellular-gnome-b5e2ae.netlify.app", "http://localhost:3001"],
        
     }
 ));
