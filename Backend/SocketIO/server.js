@@ -1,36 +1,29 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+import cors from "cors";
 
 const app = express();
 
-import cors from "cors";
-
+// ✅ Allow CORS for WebSockets
 app.use(cors({
-  origin: "https://stellular-gnome-b5e2ae.netlify.app", // Change this if frontend URL changes
+  origin: "https://stellular-gnome-b5e2ae.netlify.app", // Your frontend URL
   credentials: true
 }));
-
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Netlify URL
+    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Change to your frontend URL
     methods: ["GET", "POST"],
     credentials: true,
   },
   transports: ["websocket", "polling"], // Force WebSockets
 });
 
-
-// realtime message code goes here
-export const getReceiverSocketId = (receiverId) => {
-  return users[receiverId];
-};
-
+// Store online users
 const users = {};
 
-// used to listen events on server side.
 io.on("connection", (socket) => {
   console.log(`✅ New WebSocket connection: ${socket.id}`);
 
@@ -42,9 +35,8 @@ io.on("connection", (socket) => {
   }
 
   users[userId] = socket.id;
-  console.log("Current online users:", users);
+  console.log("👥 Current online users:", users);
 
-  // Send online users list
   io.emit("getOnlineUsers", Object.keys(users));
 
   socket.on("disconnect", () => {
@@ -54,4 +46,4 @@ io.on("connection", (socket) => {
   });
 });
 
-export { app, server, io };
+export { app, server,io };
