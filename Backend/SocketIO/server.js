@@ -1,44 +1,30 @@
 import { Server } from "socket.io";
-import http from "http";
-import express from "express";
+import cors from "cors";
 
-const app = express();
+app.use(cors({
+  origin: "https://stellular-gnome-b5e2ae.netlify.app", // Change this to your frontend URL
+  credentials: true
+}));
 
-const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Netlify URL
-    methods: ["GET", "POST"],
-    credentials: true,
+    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Same as above
+    credentials: true, // Allow cookies
   },
-  transports: ["websocket", "polling"], // Force WebSockets
 });
 
-
-// realtime message code goes here
-export const getReceiverSocketId = (receiverId) => {
-  return users[receiverId];
-};
-
-const users = {};
-
-// used to listen events on server side.
 io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
+  console.log(`✅ New WebSocket connection: ${socket.id}`);
+
   const userId = socket.handshake.query.userId;
   if (userId) {
-    users[userId] = socket.id;
-    console.log("Hello ", users);
+    onlineUsers[userId] = socket.id;
+    io.emit("getOnlineUsers", Object.keys(onlineUsers));
   }
-  // used to send the events to all connected users
-  io.emit("getOnlineUsers", Object.keys(users));
 
-  // used to listen client side events emitted by server side (server & client)
   socket.on("disconnect", () => {
-    console.log("a user disconnected", socket.id);
-    delete users[userId];
-    io.emit("getOnlineUsers", Object.keys(users));
+    console.log(`❌ User disconnected: ${socket.id}`);
+    delete onlineUsers[userId];
+    io.emit("getOnlineUsers", Object.keys(onlineUsers));
   });
 });
-
-export { app, io, server };

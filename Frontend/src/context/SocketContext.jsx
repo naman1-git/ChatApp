@@ -18,17 +18,26 @@ export const SocketProvider = ({ children }) => {
     if (authUser) {
       const newSocket = io("https://chatapp-1-7iuz.onrender.com", {
         query: { userId: authUser._id },
-        transports: ["websocket", "polling"], // Force WebSockets
+        transports: ["websocket", "polling"], 
         withCredentials: true,
       });
-
-      setSocket(newSocket);
-
-      newSocket.on("getOnlineUsers", (users) => {
-        setOnlineUsers(users);
+  
+      console.log("Attempting to connect socket...");
+  
+      newSocket.on("connect", () => {
+        console.log("✅ Socket connected:", newSocket.id);
       });
-
-      return () => newSocket.close();
+  
+      newSocket.on("connect_error", (err) => {
+        console.error("❌ Socket connection error:", err);
+      });
+  
+      setSocket(newSocket);
+  
+      return () => {
+        console.log("Socket disconnected");
+        newSocket.close();
+      };
     } else {
       if (socket) {
         socket.close();
@@ -36,6 +45,7 @@ export const SocketProvider = ({ children }) => {
       }
     }
   }, [authUser]);
+  
 
   return (
     <SocketContext.Provider value={{ socket, onlineUsers }}>

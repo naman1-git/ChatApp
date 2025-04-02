@@ -5,7 +5,12 @@ import { CiMenuFries } from "react-icons/ci";
 
 function Chatuser() {
   const { selectedConversation } = useConversation();
-  const { onlineUsers } = useSocketContext();
+  const { socket, onlineUsers } = useSocketContext();
+
+  if (!socket) {
+    console.log("Socket is not connected yet.");
+    return <div className="text-white p-5">Connecting to chat...</div>; // Prevents errors
+  }
 
   const getOnlineUsersStatus = (userId) => {
     return onlineUsers.includes(userId) ? "Online" : "Offline";
