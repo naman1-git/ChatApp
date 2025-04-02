@@ -8,9 +8,9 @@ export default defineConfig({
     port: 3001,
   proxy: {
   '/api': {
-    target: 'https://chatapp-1-7iuz.onrender.com', // Ensure this URL is correct
+    target: "http://localhost:4002", // Change to local backend for dev
     changeOrigin: true,
-    secure: false, // If the target uses HTTPS and the certificate is invalid
+    secure: false,
   },
 },
 

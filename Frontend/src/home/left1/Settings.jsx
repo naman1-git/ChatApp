@@ -53,7 +53,7 @@ function Settings(user) {
         console.log("Profile Pic URL Set: ", uploadedImage.url);
 
         // Save the new profile picture URL to the database
-        await axios.put("/api/user/update-profile_pic", { profile_pic: uploadedImage.url });
+        await axios.put("https://chatapp-1-7iuz.onrender.com/api/user/update-profile_pic", { profile_pic: uploadedImage.url });
       } else {
         toast.error("Failed to retrieve uploaded image URL");
       }

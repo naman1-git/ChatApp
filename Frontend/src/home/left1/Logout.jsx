@@ -12,7 +12,7 @@ function Logout() {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await axios.post("/api/user/logout");
+      await axios.post("https://chatapp-1-7iuz.onrender.com/api/user/logout");
       localStorage.removeItem("ChatApp");
       Cookies.remove("jwt");
       setLoading(false);
