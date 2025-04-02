@@ -18,6 +18,8 @@ export const SocketProvider = ({ children }) => {
     if (authUser) {
       const newSocket = io("https://chatapp-1-7iuz.onrender.com", {
         query: { userId: authUser._id },
+        transports: ["websocket", "polling"], // Force WebSockets
+        withCredentials: true,
       });
 
       setSocket(newSocket);

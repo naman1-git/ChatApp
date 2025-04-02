@@ -21,8 +21,10 @@ function useGetAllUsers() {
         const response = await axios.get("https://chatapp-1-7iuz.onrender.com/api/user/allusers", {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
+        
 
         setAllUsers(response.data);
       } catch (error) {

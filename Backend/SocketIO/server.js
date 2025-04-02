@@ -7,10 +7,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://chatapp-1-7iuz.onrender.com",
+    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Netlify URL
     methods: ["GET", "POST"],
+    credentials: true,
   },
+  transports: ["websocket", "polling"], // Force WebSockets
 });
+
 
 // realtime message code goes here
 export const getReceiverSocketId = (receiverId) => {
