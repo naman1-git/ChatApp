@@ -10,8 +10,6 @@ import { app, server } from "./SocketIO/server.js";
 
 dotenv.config();
 
-// middlewarenp
-const app = express();
 
 app.use(
   cors({
