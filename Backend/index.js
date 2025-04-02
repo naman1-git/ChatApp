@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT ;
 
-mongoose.connect("mongodb+srv://namanadlakha2004:namanadlakha@cluster0.3b5ae.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect("mongodb+srv://namanadlakha2004:naman@cluster0.esuqa5q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => console.log("Connected to MongoDB"))
   .catch(err => console.error("MongoDB connection error:", err));
 
