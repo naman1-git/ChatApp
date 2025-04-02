@@ -18,12 +18,12 @@ function useGetAllUsers() {
       }
 
       try {
-        const response = await axios.get("https://chatapp-1-7iuz.onrender.com/api/user/allusers", {
+        axios.get("https://chatapp-1-7iuz.onrender.com/api/user/allusers", {
+          withCredentials: true, // This ensures cookies are sent with the request
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        });
+        });        
         
 
         setAllUsers(response.data);
