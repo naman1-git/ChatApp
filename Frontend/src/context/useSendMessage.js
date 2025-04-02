@@ -8,7 +8,7 @@ const useSendMessage = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        `/api/message/send/${selectedConversation._id}`,
+        `https://chatapp-1-7iuz.onrender.com/api/message/send/${selectedConversation._id}`,
         { message }
       );
       setMessage([...messages, res.data]);
