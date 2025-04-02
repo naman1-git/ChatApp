@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import axios from "axios";
 
 function useGetAllUsers() {
@@ -9,24 +8,16 @@ function useGetAllUsers() {
   useEffect(() => {
     const getUsers = async () => {
       setLoading(true);
-      const token = Cookies.get("jwt");
-
-      if (!token) {
-        console.log("No token found, skipping API call");
-        setLoading(false);
-        return;
-      }
 
       try {
-        axios.get("https://chatapp-1-7iuz.onrender.com/api/user/allusers", {
-          withCredentials: true, // This ensures cookies are sent with the request
+        const response = await axios.get("https://chatapp-1-7iuz.onrender.com/api/user/allusers", {
+          withCredentials: true, // REQUIRED to send cookies
           headers: {
             "Content-Type": "application/json",
           },
-        });        
-        
+        });
 
-        setAllUsers(response.data);
+        setAllUsers(response.data); // ✅ Correct placement
       } catch (error) {
         console.error("Error in useGetAllUsers:", error);
       } finally {
