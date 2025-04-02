@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://stellular-gnome-b5e2ae.netlify.app",
+    origin: "https://chatapp-1-7iuz.onrender.com",
     methods: ["GET", "POST"],
   },
 });

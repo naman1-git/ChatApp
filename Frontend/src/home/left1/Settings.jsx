@@ -40,9 +40,10 @@ function Settings(user) {
     try {
       console.log("Uploading file to Cloudinary...");
       const res = await fetch("https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload", {
-        method: "PUT",
+        method: "POST",
         body: data,
       });
+      
 
       const uploadedImage = await res.json();
       console.log("Cloudinary Response: ", uploadedImage);
