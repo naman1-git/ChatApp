@@ -11,7 +11,16 @@ import { app, server } from "./SocketIO/server.js";
 dotenv.config();
 
 // middlewarenp
-app.use(cors({ origin: true, credentials: true }));
+const app = express();
+
+app.use(
+  cors({
+    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Allow frontend
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true, // Allow cookies if needed
+  })
+);
+
 
 
 app.use(express.json());

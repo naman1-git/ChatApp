@@ -20,8 +20,10 @@ function Login() {
       password: data.password,
     };
 
-    axios
-      .post("/api/user/login", userInfo)
+    axios.post("https://chatapp-1-7iuz.onrender.com/api/user/login", userInfo, {
+      withCredentials: true, // If cookies/sessions are used
+    })
+    
       .then((response) => {
         if (response.data) {
           toast.success("Login successful");
