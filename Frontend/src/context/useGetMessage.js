@@ -10,9 +10,16 @@ const useGetMessage = () => {
       setLoading(true);
       if (selectedConversation && selectedConversation._id) {
         try {
-          const res = await axios.get(
-            `https://chatapp-1-7iuz.onrender.com/api/message/get/${selectedConversation._id}`
+          const res= await axios.get(
+            `https://chatapp-1-7iuz.onrender.com/api/message/get/${selectedConversation._id}`,
+            {
+              withCredentials: true, // ✅ Ensures cookies (JWT) are sent
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
           );
+          
           setMessage(res.data);
           setLoading(false);
         } catch (error) {
