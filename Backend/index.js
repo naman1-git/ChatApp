@@ -18,9 +18,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 const PORT = process.env.PORT ;
-const URI = process.env.MONGODB_URI;
 
-mongoose.connect(URI)
+mongoose.connect("mongodb+srv://namanadlakha2004:namanadlakha@cluster0.3b5ae.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => console.log("Connected to MongoDB"))
   .catch(err => console.error("MongoDB connection error:", err));
 
