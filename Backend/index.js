@@ -10,11 +10,9 @@ import { app, server } from "./SocketIO/server.js";
 
 dotenv.config();
 
-// middleware
-app.use(cors({
-    origin: ["*"],
-    credentials: true
-}));
+// middlewarenp
+app.use(cors({ origin: true, credentials: true }));
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -22,12 +20,10 @@ app.use(cookieParser());
 const PORT = process.env.PORT ;
 const URI = process.env.MONGODB_URI;
 
-try {
-    mongoose.connect(URI);
-    console.log("Connected to MongoDB");
-} catch (error) {
-    console.log(error);
-}
+mongoose.connect(URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch(err => console.error("MongoDB connection error:", err));
+
 
 //routes
 app.use("/api/user", userRoute);
