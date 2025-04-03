@@ -1,56 +1,40 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider";
 import io from "socket.io-client";
+const socketContext = createContext();
 
-const SocketContext = createContext();
-
-// Hook to access socket context
+// it is a hook.
 export const useSocketContext = () => {
-  return useContext(SocketContext);
+  return useContext(socketContext);
 };
 
 export const SocketProvider = ({ children }) => {
-  const { user: authUser } = useAuth();
   const [socket, setSocket] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [authUser] = useAuth();
 
   useEffect(() => {
-    if (!authUser) {
-      console.log("❌ No authUser found, skipping socket connection.");
-      return;
+    if (authUser) {
+      const socket = io("http://localhost:4002", {
+        query: {
+          userId: authUser.user._id,
+        },
+      });
+      setSocket(socket);
+      socket.on("getOnlineUsers", (users) => {
+        setOnlineUsers(users);
+      });
+      return () => socket.close();
+    } else {
+      if (socket) {
+        socket.close();
+        setSocket(null);
+      }
     }
-
-    console.log("✅ Connecting to socket server...");
-
-    const newSocket = io("https://chatapp-1-7iuz.onrender.com", {
-      query: { userId: authUser._id },
-      transports: ["websocket", "polling"], 
-      withCredentials: true,
-    });
-
-    newSocket.on("connect", () => {
-      console.log("✅ Socket connected:", newSocket.id);
-      setSocket(newSocket);
-    });
-
-    newSocket.on("connect_error", (err) => {
-      console.error("❌ Socket connection error:", err);
-    });
-
-    newSocket.on("getOnlineUsers", (users) => {
-      console.log("👥 Online users received:", users);
-      setOnlineUsers(users);
-    });
-
-    return () => {
-      console.log("🔌 Disconnecting socket...");
-      newSocket.close();
-    };
   }, [authUser]);
-
   return (
-    <SocketContext.Provider value={{ socket, onlineUsers }}>
+    <socketContext.Provider value={{ socket, onlineUsers }}>
       {children}
-    </SocketContext.Provider>
+    </socketContext.Provider>
   );
 };
