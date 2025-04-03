@@ -9,12 +9,13 @@ const useSendMessage = () => {
     try {
       const res = await axios.post(
         `https://chatapp-1-7iuz.onrender.com/api/message/send/${selectedConversation._id}`,
-        { message }
+        { message } ,  { withCredentials: true }
       );
       setMessage([...messages, res.data]);
       setLoading(false);
     } catch (error) {
-      console.log("Error in send messages", error);
+      console.error("Error in send messages", error.response?.data || error.message);
+
       setLoading(false);
     }
   };
