@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { GrSettingsOption } from "react-icons/gr";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 
-function Settings({ user }) {
+function Settings(user) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newPic, setNewPic] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [profilePic, setProfilePic] = useState(user?.profile_pic || "");
+  const [profilePic, setProfilePic] = useState("");
 
-  useEffect(() => {
-    if (user?.profile_pic) {
-      setProfilePic(user.profile_pic);
-    }
-  }, [user?.profile_pic]);
-
-  const handleSettings = () => {
+  const handleSettings = async () => {
     setSettingsOpen(true);
+    try {
+      setProfilePic(user.profile_pic);
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
+    }
   };
 
   const handleFileChange = (e) => {
@@ -41,32 +40,31 @@ function Settings({ user }) {
     try {
       console.log("Uploading file to Cloudinary...");
       const res = await fetch("https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload", {
-        method: "POST", // ✅ Fixed method
+        method: "PUT",
         body: data,
       });
+      
 
       const uploadedImage = await res.json();
-      console.log("Cloudinary Response:", uploadedImage);
+      console.log("Cloudinary Response: ", uploadedImage);
 
-      if (uploadedImage.secure_url) {
-        setProfilePic(uploadedImage.secure_url);
-        toast.success("Profile picture updated successfully");
-        console.log("Profile Pic URL:", uploadedImage.secure_url);
+      if (uploadedImage.url) {
+        setProfilePic(uploadedImage.url);
+        toast.success("Profile picture uploaded successfully");
+        console.log("Profile Pic URL Set: ", uploadedImage.url);
 
-        // Save new profile picture URL to the database
-        await axios.put(
-          "https://chatapp-1-7iuz.onrender.com/api/user/update-profile_pic",
-          { profile_pic: uploadedImage.secure_url },
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
+        // Save the new profile picture URL to the database
+        await axios.put("https://chatapp-1-7iuz.onrender.com/api/user/update-profile_pic", { profile_pic: uploadedImage.url }, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
       } else {
         toast.error("Failed to retrieve uploaded image URL");
       }
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error("Error uploading file: ", error);
       toast.error("Failed to upload profile picture");
     }
 
@@ -92,33 +90,25 @@ function Settings({ user }) {
         >
           <div className="bg-white rounded-lg p-6 w-[500px] shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Update Profile Picture</h2>
-
-            {profilePic ? (
+            {profilePic && (
               <img
                 src={profilePic}
                 alt="Profile"
                 className="w-48 h-48 rounded-full mx-auto mb-4"
               />
-            ) : (
-              <div className="w-48 h-48 rounded-full bg-gray-300 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-gray-600">No Profile Pic</span>
-              </div>
             )}
-
             <input
               type="file"
               onChange={handleFileChange}
               accept="image/*"
               className="block w-full mb-4"
             />
-
             <button
               onClick={handleUpdatePic}
               className="bg-blue-500 text-white py-3 px-6 rounded hover:bg-blue-600 duration-300"
             >
               {isUploading ? "Uploading..." : "Update Picture"}
             </button>
-
             <button
               onClick={() => setSettingsOpen(false)}
               className="bg-gray-500 text-white py-3 px-6 rounded hover:bg-gray-600 duration-300 mt-4"
