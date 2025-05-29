@@ -20,7 +20,7 @@ function Login() {
       password: data.password,
     };
 
-    axios.post("https://chatapp-1-7iuz.onrender.com/api/user/login1", userInfo, {
+    axios.post("https://chatapp-1-7iuz.onrender.com/api/user/login", userInfo, {
       withCredentials: true, // If cookies/sessions are used
     })
     
