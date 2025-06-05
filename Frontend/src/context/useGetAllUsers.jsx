@@ -10,7 +10,7 @@ function useGetAllUsers() {
       setLoading(true);
 
       try {
-        const response = await axios.get("https://chatapp-1-7iuz.onrender.com/api/user/allusers", {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/allusers`, {
           withCredentials: true, // REQUIRED to send cookies
           headers: {
             "Content-Type": "application/json",

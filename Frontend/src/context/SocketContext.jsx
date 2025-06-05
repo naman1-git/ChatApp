@@ -15,7 +15,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (authUser) {
-      const socket = io("https://chatapp-1-7iuz.onrender.com", {
+      const socket = io(`${import.meta.env.VITE_BACKEND_URL}`, {
         query: {
           userId: authUser.user._id,
         },

@@ -68,7 +68,7 @@ function Signup() {
     setGeneratedOtp(otp);
 
     try {
-      await axios.post("https://chatapp-1-7iuz.onrender.com/api/user/send-otp", {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/send-otp`, {
         email,
         otp,
       });
@@ -110,7 +110,7 @@ function Signup() {
     } else {
       if (verifyOTP()) {
         try {
-          const response = await axios.post("https://chatapp-1-7iuz.onrender.com/api/user/signup", tempUserData);
+          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/signup`, tempUserData);
           if (response.data) {
             toast.success("Signup successful");
             localStorage.setItem("ChatApp", JSON.stringify(response.data));

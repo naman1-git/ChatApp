@@ -3,69 +3,51 @@ import { GrSettingsOption } from "react-icons/gr";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useAuth } from "../../context/AuthProvider";
+import { FiPlus } from "react-icons/fi";
 
-function Settings(user) {
+function Settings() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newPic, setNewPic] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [profilePic, setProfilePic] = useState("");
+  const [authUser, setAuthUser] = useAuth();
 
-  const handleSettings = async () => {
+  const handleSettings = () => {
     setSettingsOpen(true);
-    try {
-      setProfilePic(user.profile_pic);
-    } catch (error) {
-      console.error("Error fetching profile picture:", error);
-    }
   };
 
-  const handleFileChange = (e) => {
-    setNewPic(e.target.files[0]);
-  };
-
-  const handleUpdatePic = async () => {
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setNewPic(file);
     setIsUploading(true);
 
-    if (!newPic) {
-      toast.error("No file selected");
-      setIsUploading(false);
-      return;
-    }
-
     const data = new FormData();
-    data.append("file", newPic);
+    data.append("file", file);
     data.append("upload_preset", "chat app");
     data.append("cloud_name", "ddm7nxdwd");
 
     try {
-      console.log("Uploading file to Cloudinary...");
       const res = await fetch("https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload", {
-        method: "PUT",
+        method: "POST",
         body: data,
       });
-      
 
       const uploadedImage = await res.json();
-      console.log("Cloudinary Response: ", uploadedImage);
-
       if (uploadedImage.url) {
-        setProfilePic(uploadedImage.url);
-        toast.success("Profile picture uploaded successfully");
-        console.log("Profile Pic URL Set: ", uploadedImage.url);
+        const updatedUser = { ...authUser.user, profile_pic: uploadedImage.url };
+        setAuthUser({ ...authUser, user: updatedUser });
 
-        // Save the new profile picture URL to the database
-        await axios.put("https://chatapp-1-7iuz.onrender.com/api/user/update-profile_pic", { profile_pic: uploadedImage.url }, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        // Save to backend
+        await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/user/update-profile_pic`, { profile_pic: uploadedImage.url });
+
+        toast.success("Profile picture updated");
       } else {
         toast.error("Failed to retrieve uploaded image URL");
       }
     } catch (error) {
-      console.error("Error uploading file: ", error);
-      toast.error("Failed to upload profile picture");
+      console.error("Upload error:", error);
+      toast.error("Error uploading image");
     }
 
     setIsUploading(false);
@@ -73,45 +55,56 @@ function Settings(user) {
 
   return (
     <div>
-      {/* Settings Button */}
+      {/* Settings Icon */}
       <div className="p-3">
         <button onClick={handleSettings}>
           <GrSettingsOption className="text-5xl p-2 hover:bg-gray-600 rounded-lg duration-300" />
         </button>
       </div>
 
-      {/* Settings Modal */}
+      {/* Modal */}
       {settingsOpen && (
         <motion.div
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.5, opacity: 0 }}
-          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-75 flex justify-center items-center z-50"
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 flex justify-center items-center z-50"
         >
-          <div className="bg-white rounded-lg p-6 w-[500px] shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">Update Profile Picture</h2>
-            {profilePic && (
+          <div className="bg-white rounded-xl p-8 w-[400px] shadow-2xl relative text-center">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6">Account Settings</h2>
+
+            <div className="relative w-32 h-32 mx-auto mb-4">
               <img
-                src={profilePic}
+                src={authUser?.user?.profile_pic}
                 alt="Profile"
-                className="w-48 h-48 rounded-full mx-auto mb-4"
+                className="w-full h-full rounded-full object-cover border-4 border-blue-500"
               />
-            )}
-            <input
-              type="file"
-              onChange={handleFileChange}
-              accept="image/*"
-              className="block w-full mb-4"
-            />
-            <button
-              onClick={handleUpdatePic}
-              className="bg-blue-500 text-white py-3 px-6 rounded hover:bg-blue-600 duration-300"
-            >
-              {isUploading ? "Uploading..." : "Update Picture"}
-            </button>
+              <label
+                htmlFor="fileInput"
+                className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition-all"
+                title="Change profile picture"
+              >
+                <FiPlus className="text-xl" />
+              </label>
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
+
+            {isUploading && <p className="text-sm text-gray-500 mb-2">Uploading...</p>}
+
+            <div className="mb-2 text-gray-800">
+              <p className="font-medium text-lg">{authUser?.user?.fullname}</p>
+              <p className="text-sm">{authUser?.user?.email}</p>
+            </div>
+
             <button
               onClick={() => setSettingsOpen(false)}
-              className="bg-gray-500 text-white py-3 px-6 rounded hover:bg-gray-600 duration-300 mt-4"
+              className="mt-6 bg-gray-700 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all"
             >
               Close
             </button>

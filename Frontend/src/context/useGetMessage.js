@@ -11,7 +11,7 @@ const useGetMessage = () => {
       if (selectedConversation && selectedConversation._id) {
         try {
           const res= await axios.get(
-            `https://chatapp-1-7iuz.onrender.com/api/message/get/${selectedConversation._id}`,
+            `${import.meta.env.VITE_BACKEND_URL}/message/get/${selectedConversation._id}`,
             {
               withCredentials: true, // ✅ Ensures cookies (JWT) are sent
               headers: {
