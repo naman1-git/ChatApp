@@ -13,7 +13,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Allow frontend
+    origin: process.env.FRONTEND_URL, // Allow frontend
     methods: "GET,POST,PUT,DELETE",
     credentials: true, // Allow cookies if needed
   })

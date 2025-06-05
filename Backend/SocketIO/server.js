@@ -7,7 +7,7 @@ const app = express();
 
 
 app.use(cors({
-  origin: "https://stellular-gnome-b5e2ae.netlify.app", // Change this if frontend URL changes
+  origin: process.env.FRONTEND_URL, // Change this if frontend URL changes
   credentials: true
 }));
 
@@ -15,7 +15,7 @@ app.use(cors({
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://stellular-gnome-b5e2ae.netlify.app", // Netlify URL
+    origin: process.env.FRONTEND_URL, // Netlify URL
     methods: ["GET", "POST"],
     credentials: true,
   },
