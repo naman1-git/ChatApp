@@ -12,10 +12,10 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [authUser] = useAuth();
-
+  //bhai change krdio yha
   useEffect(() => {
     if (authUser) {
-      const socket = io(`${import.meta.env.VITE_BACKEND_URL}`, {
+      const socket = io("http://localhost:4002", {
         query: {
           userId: authUser.user._id,
         },
