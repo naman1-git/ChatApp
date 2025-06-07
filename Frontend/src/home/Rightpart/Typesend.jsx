@@ -1,58 +1,72 @@
 import React, { useState } from "react";
 import { IoSend } from "react-icons/io5";
 import useSendMessage from "../../context/useSendMessage.js";
-import EmojiPicker from "emoji-picker-react"; // Import the emoji picker
+import EmojiPicker from "emoji-picker-react";
+import { useSocketContext } from "../../context/SocketContext.jsx";
+import useConversation from "../../statemanage/useConversation.js";
 
 function Typesend() {
   const [message, setMessage] = useState("");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // State for showing emoji picker
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   const { loading, sendMessages } = useSendMessage();
+  const { socket } = useSocketContext();
+  const { selectedConversation } = useConversation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!message.trim()) return;
+
     await sendMessages(message);
     setMessage("");
+    setShowEmojiPicker(false);
   };
 
   const handleEmojiClick = (emojiData) => {
-    setMessage((prevMessage) => prevMessage + emojiData.emoji); // Append emoji to the message
+    setMessage((prev) => prev + emojiData.emoji);
+  };
+
+  const handleTyping = () => {
+    if (socket && selectedConversation) {
+      socket.emit("typing", {
+        senderId: JSON.parse(localStorage.getItem("ChatApp")).user._id,
+        receiverId: selectedConversation._id,
+      });
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <div  className="flex space-x-1 h-[10vh] bg-black items-center">
-        <div className="w-[100%] mx-4 relative">
-          {/* Show emoji picker */}
+      <div className="flex space-x-1 h-[10vh] bg-black items-center px-4">
+        <div className="w-full relative">
           {showEmojiPicker && (
-            <div className="absolute bottom-[60px] left-0">
+            <div className="absolute bottom-[60px] left-0 z-50">
               <EmojiPicker onEmojiClick={handleEmojiClick} height={350} width={300} />
             </div>
           )}
 
           <input
             type="text"
-            placeholder="Type here"
+            placeholder="Type here..."
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="border-[1px] border-black flex items-center w-full py-3 px-3 rounded-xl grow outline-none bg-slate-900 mt-1"
+            onChange={(e) => {
+              setMessage(e.target.value);
+              handleTyping();
+            }}
+            className="border border-black w-full py-3 px-4 rounded-xl bg-slate-900 text-white outline-none"
           />
         </div>
 
-        <div>
-          {/* Button to toggle emoji picker */}
-          <button
-            type="button"
-            onClick={() => setShowEmojiPicker((prev) => !prev)}
-            className="text-3xl" // Adjust the size here
-          >
-            <span role="img" aria-label="smiley" style={{ fontSize: "2rem" }}>
-              😃
-            </span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowEmojiPicker((prev) => !prev)}
+          className="text-2xl text-white"
+        >
+          😃
+        </button>
 
-        <button type="submit">
-          <IoSend className="text-4xl" />
+        <button type="submit" disabled={loading} className="text-3xl text-white ml-2">
+          <IoSend />
         </button>
       </div>
     </form>

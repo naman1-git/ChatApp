@@ -2,6 +2,8 @@ import { Server } from "socket.io";
 import http from "http";
 import express from "express";
 import dotenv from "dotenv";
+import Message from "../models/message.model.js";
+
 dotenv.config();
 
 import cors from "cors";
@@ -37,24 +39,32 @@ io.on("connection", (socket) => {
   console.log(`✅ New WebSocket connection: ${socket.id}`);
 
   const userId = socket.handshake.query.userId;
-  
-  if (!userId) {
-    console.log("❌ No userId received in handshake query");
-    return;
-  }
+  if (!userId) return;
 
   users[userId] = socket.id;
-  console.log("Current online users:", users);
-
-  // Send online users list
   io.emit("getOnlineUsers", Object.keys(users));
 
+  // 📢 Typing indicator
+  socket.on("typing", ({ receiverId }) => {
+    const receiverSocket = getReceiverSocketId(receiverId);
+    if (receiverSocket) {
+      io.to(receiverSocket).emit("typing", { senderId: userId });
+    }
+  });
+
+  socket.on("stopTyping", ({ receiverId }) => {
+    const receiverSocket = getReceiverSocketId(receiverId);
+    if (receiverSocket) {
+      io.to(receiverSocket).emit("stopTyping", { senderId: userId });
+    }
+  });
+
   socket.on("disconnect", () => {
-    console.log(`❌ User disconnected: ${socket.id}`);
     delete users[userId];
     io.emit("getOnlineUsers", Object.keys(users));
   });
 });
+
 
 
 export { app, server, io };
