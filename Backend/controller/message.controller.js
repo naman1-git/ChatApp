@@ -1,6 +1,8 @@
 import { getReceiverSocketId, io } from "../SocketIO/server.js";
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import cloudinary from "../utils/cloudinary.js";
+import fs from "fs";
 
 // POST /message/send/:id
 export const sendMessage = async (req, res) => {
@@ -8,6 +10,26 @@ export const sendMessage = async (req, res) => {
     const { message } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
+
+    let fileUrl = null;
+    let fileType = "text";
+
+    // Handle file upload if file exists
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "auto",
+      });
+      fileUrl = result.secure_url;
+
+      const mime = req.file.mimetype;
+      if (mime.startsWith("image/")) fileType = "image";
+      else if (mime.startsWith("video/")) fileType = "video";
+      else if (mime.startsWith("audio/")) fileType = "audio";
+      else fileType = "file";
+
+      // Optional: delete temp file
+      fs.unlinkSync(req.file.path);
+    }
 
     // Find or create conversation
     let conversation = await Conversation.findOne({
@@ -19,32 +41,31 @@ export const sendMessage = async (req, res) => {
       });
     }
 
-    // Create new message
+    // Save message without encryption
     const newMessage = new Message({
       senderId,
       receiverId,
-      message,
+      message: message || "",
+      file: fileUrl,
+      type: fileUrl ? fileType : "text",
     });
 
-    // Push message ID to conversation
     conversation.messages.push(newMessage._id);
-
-    // Save both in parallel
     await Promise.all([conversation.save(), newMessage.save()]);
 
-    // Emit to receiver if online
+    const messageToSend = newMessage.toObject();
+
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
+      io.to(receiverSocketId).emit("newMessage", messageToSend);
     }
 
-    // Optionally, emit to sender to update their own state
     const senderSocketId = getReceiverSocketId(senderId);
     if (senderSocketId) {
-      io.to(senderSocketId).emit("newMessage", newMessage);
+      io.to(senderSocketId).emit("newMessage", messageToSend);
     }
 
-    res.status(201).json(newMessage);
+    res.status(201).json(messageToSend);
   } catch (error) {
     console.error("❌ Error in sendMessage:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -61,11 +82,12 @@ export const getMessage = async (req, res) => {
       members: { $all: [senderId, chatUser] },
     }).populate("messages");
 
-    if (!conversation) {
-      return res.status(200).json([]);
-    }
+    if (!conversation) return res.status(200).json([]);
 
-    res.status(200).json(conversation.messages);
+    // No decryption
+    const messages = conversation.messages.map(msg => msg.toObject());
+
+    res.status(200).json(messages);
   } catch (error) {
     console.error("❌ Error in getMessage:", error);
     res.status(500).json({ error: "Internal server error" });

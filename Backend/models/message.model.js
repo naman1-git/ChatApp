@@ -13,8 +13,16 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     message: {
+      type: String, // Encrypted text
+    },
+    file: {
+      type: String, // Cloudinary URL if any
+      default: null,
+    },
+    type: {
       type: String,
-      required: true,
+      enum: ["text", "image", "video", "audio", "file"],
+      default: "text",
     },
   },
   { timestamps: true }

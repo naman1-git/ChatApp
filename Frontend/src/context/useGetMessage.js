@@ -21,6 +21,7 @@ const useGetMessage = () => {
           );
           
           setMessage(res.data);
+
           setLoading(false);
         } catch (error) {
           console.log("Error in getting messages", error);
