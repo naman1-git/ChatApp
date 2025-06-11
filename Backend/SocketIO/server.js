@@ -30,7 +30,6 @@ const users = new Map(); // userId -> Set(socketIds)
 export const getReceiverSocketId = (receiverId) => {
   const socketSet = users.get(receiverId);
   if (socketSet && socketSet.size > 0) {
-    // return first socket ID (can be improved for broadcasting)
     return [...socketSet][0];
   }
   return null;
@@ -42,13 +41,11 @@ io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
   if (!userId) return;
 
-  // Add this socket.id to the user's set
   if (!users.has(userId)) {
     users.set(userId, new Set());
   }
   users.get(userId).add(socket.id);
 
-  // Emit current online users
   io.emit("getOnlineUsers", Array.from(users.keys()));
 
   // 📢 Typing indicator
@@ -63,6 +60,41 @@ io.on("connection", (socket) => {
     const receiverSocket = getReceiverSocketId(receiverId);
     if (receiverSocket) {
       io.to(receiverSocket).emit("stopTyping", { senderId: userId });
+    }
+  });
+
+  // ✅ New: Real-time Reactions
+  socket.on("send-reaction", async ({ messageId, userId, emoji }) => {
+    try {
+      const message = await Message.findById(messageId);
+      const existingIndex = message.reactions.findIndex(
+        (r) => r.userId.toString() === userId
+      );
+
+      if (existingIndex !== -1) {
+        const existingReaction = message.reactions[existingIndex];
+        if (existingReaction.emoji === emoji) {
+          // Remove reaction
+          message.reactions.splice(existingIndex, 1);
+        } else {
+          // Update reaction
+          message.reactions[existingIndex].emoji = emoji;
+        }
+      } else {
+        // Add new reaction
+        message.reactions.push({ userId, emoji });
+      }
+
+      await message.save();
+
+      // Broadcast updated reaction to all sockets
+      io.emit("reaction-updated", {
+        messageId,
+        userId,
+        emoji: message.reactions.find((r) => r.userId.toString() === userId)?.emoji || null,
+      });
+    } catch (error) {
+      console.error("Reaction error:", error.message);
     }
   });
 

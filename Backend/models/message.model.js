@@ -24,6 +24,13 @@ const messageSchema = new mongoose.Schema(
       enum: ["text", "image", "video", "audio", "file","pdf"],
       default: "text",
     },
+
+    reactions: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      emoji: String,
+    },
+  ],
   },
   { timestamps: true }
 );

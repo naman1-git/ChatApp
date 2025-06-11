@@ -5,6 +5,7 @@ import cloudinary from "../utils/cloudinary.js";
 import fs from "fs";
 import mime from "mime-types"; // Add this if not already used
 
+
 // POST /message/send/:id 
 export const sendMessage = async (req, res) => {
   try {
@@ -108,3 +109,43 @@ export const getMessage = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+export const reactToMessage = async (req, res) => {
+  const { messageId, userId, emoji } = req.body;
+
+  try {
+    const message = await Message.findById(messageId);
+
+    const existingIndex = message.reactions.findIndex(
+      (r) => r.userId.toString() === userId
+    );
+
+    if (existingIndex !== -1) {
+      const existingReaction = message.reactions[existingIndex];
+      if (existingReaction.emoji === emoji) {
+        // Same emoji → remove reaction
+        message.reactions.splice(existingIndex, 1);
+      } else {
+        // Different emoji → update
+        message.reactions[existingIndex].emoji = emoji;
+      }
+    } else {
+      // No previous reaction → add
+      message.reactions.push({ userId, emoji });
+    }
+
+    await message.save();
+
+    req.io.emit("reaction-updated", {
+      messageId,
+      userId,
+      emoji: message.reactions.find((r) => r.userId.toString() === userId)?.emoji || null,
+    });
+
+    res.status(200).json({ success: true, reactions: message.reactions });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to toggle reaction" });
+  }
+};
+
