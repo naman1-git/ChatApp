@@ -31,6 +31,14 @@ const messageSchema = new mongoose.Schema(
       emoji: String,
     },
   ],
+
+  sendAt: { type: Date },
+  scheduled: { type: Boolean, default: false },
+  delivered: { type: Boolean, default: false },
+  cancelled: { type: Boolean, default: false },
+  agendaJobId: { type: mongoose.Schema.Types.ObjectId }
+
+
   },
   { timestamps: true }
 );

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
+import { agenda } from "./utils/messageScheduler.js"; 
 import userRoute from "./routes/user.route.js";
 import messageRoute from "./routes/message.route.js";
 import { app, server } from "./SocketIO/server.js";
@@ -29,6 +29,7 @@ const PORT = process.env.PORT ;
 mongoose.connect("mongodb+srv://namanadlakha2004:naman@cluster0.esuqa5q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => console.log("Connected to MongoDB"))
   .catch(err => console.error("MongoDB connection error:", err));
+  agenda.start();
 
 
 //routes

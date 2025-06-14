@@ -4,6 +4,8 @@ import Message from "../models/message.model.js";
 import cloudinary from "../utils/cloudinary.js";
 import fs from "fs";
 import mime from "mime-types"; // Add this if not already used
+import { scheduleMessageJob } from "../utils/messageScheduler.js"; // Import the scheduling function
+import {agenda} from "../utils/messageScheduler.js"; // Import agenda for job management
 
 
 // POST /message/send/:id 
@@ -148,4 +150,80 @@ export const reactToMessage = async (req, res) => {
     res.status(500).json({ error: "Failed to toggle reaction" });
   }
 };
+
+
+export const scheduleMessage = async (req, res) => {
+  const { message, sendAt, receiverId, file, type } = req.body;
+  const senderId = req.user._id; // comes from secureRoute
+
+  try {
+    // Validate required fields
+    if (!receiverId || !message || !sendAt) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      message,
+      file: file || null,
+      type: type || "text",
+      sendAt,
+      scheduled: true,
+      delivered: false,
+      cancelled: false,
+    });
+
+    await newMessage.save();
+    const jobId = await scheduleMessageJob(newMessage._id, sendAt);
+    newMessage.agendaJobId = jobId;
+    await newMessage.save();
+
+    res.status(200).json({ message: "Message scheduled successfully." });
+  } catch (err) {
+    console.error("Scheduling failed:", err);
+    res.status(500).json({ message: "Scheduling failed", error: err.message });
+  }
+};
+
+export const cancelScheduledMessage = async (req, res) => {
+  const { messageId } = req.params;
+
+  try {
+    const message = await Message.findById(messageId);
+    if (!message || !message.scheduled || message.delivered || message.cancelled) {
+      return res.status(400).json({ message: "Message cannot be cancelled" });
+    }
+
+    // Cancel Agenda job
+    await agenda.cancel({ _id: message.agendaJobId });
+
+    // Update message as cancelled
+    message.cancelled = true;
+    message.scheduled = false;
+    await message.save();
+
+    res.status(200).json({ message: "Scheduled message cancelled" });
+  } catch (err) {
+    res.status(500).json({ message: "Cancellation failed", error: err.message });
+  }
+};
+
+export const getScheduledMessages = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const scheduledMessages = await Message.find({
+      senderId: userId,
+      scheduled: true,
+      cancelled: false,
+    })
+      .sort({ sendAt: 1 })
+      .populate("receiverId", "email"); // <-- Add this line
+
+    res.json(scheduledMessages);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch scheduled messages" });
+  }
+};
+
 
