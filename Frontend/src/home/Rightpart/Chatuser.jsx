@@ -44,10 +44,10 @@ function Chatuser() {
   }, [socket, selectedConversation]);
 
   return (
-    <div className="pl-5 pt-5 h-[10vh] flex items-center space-x-4 bg-gray-700 hover:bg-gray-600 duration-300 shadow-lg rounded-lg p-3">
+    <div className="pl-5 pt-5 h-[10vh] flex items-center space-x-4 bg-gradient-to-r from-gray-200/80 to-gray-100/80 backdrop-blur-lg shadow-xl rounded-2xl p-3 border border-gray-300/40">
       {/* Profile Picture */}
       <div className="relative">
-        <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-gray-500">
+        <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-gradient-to-tr from-blue-300 via-purple-300 to-pink-300 shadow-lg">
           <img
             src={selectedConversation.profile_pic}
             alt={`${selectedConversation.fullname}'s avatar`}
@@ -56,21 +56,23 @@ function Chatuser() {
         </div>
         {/* Status Indicator */}
         <span
-          className={`absolute bottom-1 right-1 w-3 h-3 rounded-full border-2 border-gray-700 ${
-            isOnline ? "bg-green-400" : "bg-red-400"
+          className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-gray-200 shadow ${
+            isOnline ? "bg-green-400 animate-pulse" : "bg-red-400"
           }`}
         ></span>
       </div>
 
       {/* User Details */}
       <div className="flex flex-col">
-        <h1 className="text-lg font-semibold text-white">{selectedConversation.fullname}</h1>
+        <h1 className="text-xl font-bold text-gray-900 tracking-tight">{selectedConversation.fullname}</h1>
         <span
           className={`text-sm font-medium ${
-            isOnline ? "text-green-400" : "text-red-400"
+            isOnline ? "text-green-500" : "text-red-400"
           }`}
         >
-          {isTyping ? "Typing..." : isOnline ? "Online" : "Offline"}
+          {isTyping ? (
+            <span className="animate-pulse">Typing...</span>
+          ) : isOnline ? "Online" : "Offline"}
         </span>
       </div>
     </div>

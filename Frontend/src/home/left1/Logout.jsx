@@ -24,19 +24,24 @@ function Logout() {
     }
   };
 
-
-
   return (
-    <div >
+    <div>
       {/* Logout Button */}
-      <div className="p-3">
-        <button onClick={handleLogout}>
-          <TbLogout2 className="text-5xl p-2 hover:bg-gray-600 rounded-lg duration-300" />
+      <div className="p-3 flex flex-col items-center">
+        <button
+          onClick={handleLogout}
+          disabled={loading}
+          className="bg-gradient-to-tr from-blue-100 to-purple-100 hover:from-blue-200 hover:to-purple-200 rounded-lg shadow transition-all duration-300 p-2"
+          title="Logout"
+        >
+          <TbLogout2 className="text-4xl text-blue-600" />
         </button>
-       
+        {loading && (
+          <span className="mt-2 text-xs text-blue-500 animate-pulse">
+            Logging out...
+          </span>
+        )}
       </div>
-
-   
     </div>
   );
 }

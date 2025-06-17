@@ -39,12 +39,12 @@ function Login() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-900">
+    <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-purple-100">
       {/* Left side with app name */}
       <div className="w-1/2 flex items-center justify-center">
-        <h1 className="text-6xl font-bold text-white">
+        <h1 className="text-6xl font-bold text-blue-700 drop-shadow">
           Connect
-          <span className="block text-lg mt-2 text-gray-400">Where conversations come alive</span>
+          <span className="block text-lg mt-2 text-blue-400 font-medium">Where conversations come alive</span>
         </h1>
       </div>
 
@@ -52,14 +52,14 @@ function Login() {
       <div className="w-1/2 flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-gray-800 border border-gray-700 px-8 py-6 rounded-lg shadow-xl space-y-4 w-96"
+          className="bg-white border border-blue-100 px-8 py-8 rounded-2xl shadow-2xl space-y-4 w-96"
         >
-          <h2 className="text-2xl text-white mb-6">
+          <h2 className="text-2xl text-blue-700 mb-6 font-bold">
             Login to your{" "}
-            <span className="text-blue-400 font-semibold">Account</span>
+            <span className="text-blue-500 font-semibold">Account</span>
           </h2>
 
-          <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+          <label className="input input-bordered flex items-center gap-2 bg-blue-50 border-blue-100 text-blue-700">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -71,7 +71,7 @@ function Login() {
             </svg>
             <input
               type="email"
-              className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+              className="grow bg-transparent focus:outline-none text-blue-700 placeholder-blue-400"
               placeholder="Email"
               {...register("email", { required: true })}
             />
@@ -82,7 +82,7 @@ function Login() {
             </span>
           )}
 
-          <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+          <label className="input input-bordered flex items-center gap-2 bg-blue-50 border-blue-100 text-blue-700">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
@@ -97,7 +97,7 @@ function Login() {
             </svg>
             <input
               type="password"
-              className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+              className="grow bg-transparent focus:outline-none text-blue-700 placeholder-blue-400"
               placeholder="Password"
               {...register("password", { required: true })}
             />
@@ -110,24 +110,24 @@ function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow"
           >
             Login
           </button>
 
-          <p className="text-gray-400 text-center">
+          <p className="text-blue-500 text-center">
             Don't have an Account?{" "}
             <Link
               to="/signup"
-              className="text-blue-400 hover:text-blue-300 underline"
+              className="text-blue-600 hover:text-blue-400 underline"
             >
               Sign up
             </Link>
           </p>
-          <p className="text-gray-400 text-center mt-2">
+          <p className="text-blue-400 text-center mt-2">
             <Link
               to="/forgot-password"
-              className="text-blue-400 hover:text-blue-300 underline"
+              className="text-blue-600 hover:text-blue-400 underline"
             >
               Forgot Password?
             </Link>

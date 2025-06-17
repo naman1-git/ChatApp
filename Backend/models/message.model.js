@@ -33,6 +33,7 @@ const messageSchema = new mongoose.Schema(
   ],
 
   sendAt: { type: Date },
+  seen: { type: Boolean, default: false },
   scheduled: { type: Boolean, default: false },
   delivered: { type: Boolean, default: false },
   cancelled: { type: Boolean, default: false },

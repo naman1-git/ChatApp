@@ -98,6 +98,34 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Mark message as delivered
+  socket.on("delivered", async ({ messageId, userId }) => {
+    try {
+      const message = await Message.findById(messageId);
+      if (message && !message.delivered) {
+        message.delivered = true;
+        await message.save();
+        io.emit("message-delivered", { messageId, userId });
+      }
+    } catch (err) {
+      console.error("Deliver error:", err);
+    }
+  });
+
+  // Mark message as seen
+  socket.on("seen", async ({ messageId, userId }) => {
+    try {
+      const message = await Message.findById(messageId);
+      if (message && !message.seen) {
+        message.seen = true;
+        await message.save();
+        io.emit("message-seen", { messageId, userId });
+      }
+    } catch (err) {
+      console.error("Seen error:", err);
+    }
+  });
+
   socket.on("disconnect", () => {
     if (userId && users.has(userId)) {
       const userSockets = users.get(userId);

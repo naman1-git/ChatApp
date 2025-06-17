@@ -28,6 +28,12 @@ const useGetSocketMessage = () => {
           console.log("Error refreshing messages", error);
         }
       }
+
+      // Emit delivered if I'm the receiver
+      const authUser = JSON.parse(localStorage.getItem("ChatApp"));
+      if (authUser && newMessage.receiverId === authUser.user._id && !newMessage.delivered) {
+        socket.emit("delivered", { messageId: newMessage._id, userId: authUser.user._id });
+      }
     });
 
     socket.on("reaction-updated", ({ messageId, userId, emoji }) => {
@@ -53,9 +59,27 @@ const useGetSocketMessage = () => {
       });
     });
 
+    socket.on("message-delivered", ({ messageId }) => {
+      setMessage((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg._id === messageId ? { ...msg, delivered: true } : msg
+        )
+      );
+    });
+
+    socket.on("message-seen", ({ messageId }) => {
+      setMessage((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg._id === messageId ? { ...msg, seen: true } : msg
+        )
+      );
+    });
+
     return () => {
       socket.off("newMessage");
       socket.off("reaction-updated");
+      socket.off("message-delivered");
+      socket.off("message-seen");
     };
   }, [socket, setMessage, selectedConversation]);
 };

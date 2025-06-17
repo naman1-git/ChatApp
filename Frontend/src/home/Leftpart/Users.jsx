@@ -7,7 +7,7 @@ function Users() {
   console.log(allUsers);
   return (
     <div>
-      <h1 className="px-8 py-2 text-white font-semibold bg-slate-800 rounded-md">
+      <h1 className="px-8 py-2 text-gray-700 font-semibold bg-gradient-to-r from-gray-200/80 to-gray-100/80 rounded-xl shadow mb-2">
         Messages
       </h1>
       <div

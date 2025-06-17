@@ -28,27 +28,26 @@ function Signup() {
   };
 
   const handleUpload = async (event) => {
-    // ... (keeping the existing upload logic)
     setIsUploading(true);
     const file = event.target.files[0];
     if (!file) {
       toast.error("No file selected");
       return;
     }
-  
+
     const data = new FormData();
     data.append("file", file);
     data.append("upload_preset", "chat app");
     data.append("cloud_name", "ddm7nxdwd");
-  
+
     try {
       const res = await fetch("https://api.cloudinary.com/v1_1/ddm7nxdwd/image/upload", {
         method: "POST",
         body: data,
       });
-  
+
       const uploadedImage = await res.json();
-  
+
       if (uploadedImage.url) {
         setProfilePic(uploadedImage.url);
         toast.success("Profile picture uploaded successfully");
@@ -63,7 +62,6 @@ function Signup() {
   };
 
   const generateAndSendOTP = async (email) => {
-    // ... (keeping the existing OTP logic)
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedOtp(otp);
 
@@ -89,7 +87,6 @@ function Signup() {
   };
 
   const onSubmit = async (data) => {
-    // ... (keeping the existing submit logic)
     if (!profilePic) {
       toast.error("Please upload a profile picture before signing up.");
       return;
@@ -126,12 +123,12 @@ function Signup() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-900">
+    <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-purple-100">
       {/* Left side with app name */}
       <div className="w-1/2 flex items-center justify-center">
-        <h1 className="text-6xl font-bold text-white">
+        <h1 className="text-6xl font-bold text-blue-700 drop-shadow">
           Connect
-          <span className="block text-lg mt-2 text-gray-400">Where conversations come alive</span>
+          <span className="block text-lg mt-2 text-blue-400 font-medium">Where conversations come alive</span>
         </h1>
       </div>
 
@@ -139,16 +136,16 @@ function Signup() {
       <div className="w-1/2 flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-gray-800 border border-gray-700 px-8 py-6 rounded-lg shadow-xl space-y-4 w-96"
+          className="bg-white border border-blue-100 px-8 py-8 rounded-2xl shadow-2xl space-y-4 w-96"
         >
-          <h2 className="text-2xl text-white mb-6">
+          <h2 className="text-2xl text-blue-700 mb-6 font-bold">
             Create a new{" "}
-            <span className="text-blue-400 font-semibold">Account</span>
+            <span className="text-blue-500 font-semibold">Account</span>
           </h2>
 
           {!showOtpInput ? (
             <>
-              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+              <label className="input input-bordered flex items-center gap-2 bg-blue-50 border-blue-100 text-blue-700">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -159,7 +156,7 @@ function Signup() {
                 </svg>
                 <input
                   type="text"
-                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  className="grow bg-transparent focus:outline-none text-blue-700 placeholder-blue-400"
                   placeholder="Fullname"
                   {...register("fullname", { required: true })}
                 />
@@ -170,7 +167,7 @@ function Signup() {
                 </span>
               )}
 
-              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+              <label className="input input-bordered flex items-center gap-2 bg-blue-50 border-blue-100 text-blue-700">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -182,7 +179,7 @@ function Signup() {
                 </svg>
                 <input
                   type="email"
-                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  className="grow bg-transparent focus:outline-none text-blue-700 placeholder-blue-400"
                   placeholder="Email"
                   {...register("email", { required: true })}
                 />
@@ -193,7 +190,7 @@ function Signup() {
                 </span>
               )}
 
-              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+              <label className="input input-bordered flex items-center gap-2 bg-blue-50 border-blue-100 text-blue-700">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -208,7 +205,7 @@ function Signup() {
                 </svg>
                 <input
                   type="password"
-                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  className="grow bg-transparent focus:outline-none text-blue-700 placeholder-blue-400"
                   placeholder="Password"
                   {...register("password", { required: true })}
                 />
@@ -219,7 +216,7 @@ function Signup() {
                 </span>
               )}
 
-              <label className="input input-bordered flex items-center gap-2 bg-gray-700 border-gray-600 text-white">
+              <label className="input input-bordered flex items-center gap-2 bg-blue-50 border-blue-100 text-blue-700">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -234,7 +231,7 @@ function Signup() {
                 </svg>
                 <input
                   type="password"
-                  className="grow bg-transparent focus:outline-none text-white placeholder-gray-400"
+                  className="grow bg-transparent focus:outline-none text-blue-700 placeholder-blue-400"
                   placeholder="Confirm password"
                   {...register("confirmPassword", {
                     required: true,

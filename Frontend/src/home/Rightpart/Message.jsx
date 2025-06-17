@@ -80,6 +80,36 @@ function Message({ message }) {
       />
     ) : null;
 
+  // WhatsApp-style tick icons
+  const getStatusIcon = () => {
+    if (message.seen)
+      return (
+        <span title="Seen" className="inline-flex items-center">
+          <svg width="18" height="18" viewBox="0 0 20 20" className="inline" style={{marginRight: '-2px'}}>
+            <polyline points="4,11 8,15 16,7" fill="none" stroke="#4fc3f7" strokeWidth="2" />
+            <polyline points="7,11 11,15 19,7" fill="none" stroke="#4fc3f7" strokeWidth="2" />
+          </svg>
+        </span>
+      );
+    if (message.delivered)
+      return (
+        <span title="Delivered" className="inline-flex items-center">
+          <svg width="18" height="18" viewBox="0 0 20 20" className="inline" style={{marginRight: '-2px'}}>
+            <polyline points="4,11 8,15 16,7" fill="none" stroke="#b0b0b0" strokeWidth="2" />
+            <polyline points="7,11 11,15 19,7" fill="none" stroke="#b0b0b0" strokeWidth="2" />
+          </svg>
+        </span>
+      );
+    // Sent (single gray tick)
+    return (
+      <span title="Sent" className="inline-flex items-center">
+        <svg width="18" height="18" viewBox="0 0 20 20" className="inline">
+          <polyline points="4,11 8,15 16,7" fill="none" stroke="#b0b0b0" strokeWidth="2" />
+        </svg>
+      </span>
+    );
+  };
+
   return (
     <>
       <EmojiPickerOverlay />
@@ -88,85 +118,72 @@ function Message({ message }) {
           itsMe ? "justify-end" : "justify-start"
         }`}
       >
-        <div className={`relative flex items-end ${itsMe ? "flex-row-reverse" : ""}`}>
+        <div className={`relative flex flex-col items-end ${itsMe ? "items-end" : "items-start"}`}>
           {/* Message Bubble */}
           <div
-            className={`relative w-fit break-words whitespace-pre-wrap px-4 py-2 shadow-md ${
+            className={`relative w-fit break-words whitespace-pre-wrap px-5 py-3 shadow-lg transition-all duration-200 ${
               itsMe
-                ? "bg-blue-600 text-white rounded-2xl rounded-br-sm"
-                : "bg-gray-800 text-white rounded-2xl rounded-bl-sm"
-            }`}
-            style={{ maxWidth: "103ch" }}
+                ? "bg-gradient-to-tr from-blue-600/90 to-purple-600/90 text-white rounded-3xl rounded-br-md"
+                : "bg-gradient-to-tr from-gray-800/90 to-gray-700/90 text-white rounded-3xl rounded-bl-md"
+            } hover:scale-[1.02] hover:shadow-2xl backdrop-blur-lg border border-gray-700/40`}
+            style={{ maxWidth: "103ch", minWidth: "56px" }}
           >
-            {/* Content */}
-            <div className="text-sm">{renderContent()}</div>
-
-            {/* Reactions Summary */}
-            {message.reactions?.length > 0 && (
-              <div
-                className={`absolute -bottom-6 px-2 py-0.5 text-xs rounded-full bg-white/20 backdrop-blur-sm flex gap-2 items-center ${
-                  itsMe ? "left-2" : "right-2"
-                }`}
-              >
-                {Object.entries(
-                  message.reactions.reduce((acc, r) => {
-                    if (r.emoji) acc[r.emoji] = (acc[r.emoji] || 0) + 1;
-                    return acc;
-                  }, {})
-                ).map(([emoji, count]) => (
-                  <span
-                    key={emoji}
-                    className="flex items-center gap-1 px-1"
-                  >
-                    {emoji} {count}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Reaction Picker Toggle Button (show only on hover) */}
-            <div
-              className={`absolute ${
-                itsMe ? "left-[-48px]" : "right-[-48px]"
-              } top-1 flex-col items-center z-50`}
-              style={{ minWidth: "40px", display: "none" }}
+            {/* Emoji Picker Toggle Button (top-right, visible on hover) */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPicker((prev) => !prev);
+              }}
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-lg hover:scale-110 bg-white/80 text-gray-700 rounded-full p-1 shadow z-50"
+              title="React"
+              style={{ zIndex: 50 }}
             >
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowPicker((prev) => !prev);
-                }}
-                className="text-xl hover:scale-110 transition-transform bg-white rounded-full p-1 shadow"
-                title="React"
-                style={{ zIndex: 50 }}
-              >
-                😊
-              </button>
+              😊
+            </button>
+
+            {/* Content */}
+            <div className="text-sm pr-14">{renderContent()}</div>
+
+            {/* Timestamp & Status (bottom right inside bubble) */}
+            <div className="flex items-center gap-1 absolute bottom-2 right-4 text-[11px] text-gray-200 opacity-80 bg-transparent">
+              <span>{formattedTime}</span>
+              {itsMe && getStatusIcon()}
             </div>
           </div>
 
-          {/* Show emoji button only on hover */}
-          <style>
-            {`
-              .group:hover .absolute[style*="min-width: 40px"] {
-                display: flex !important;
-              }
-            `}
-          </style>
+          {/* Reactions Summary (below bubble, outside) */}
+          {message.reactions?.length > 0 && (
+            <div
+              className="mt-1 px-2 py-0.5 text-xs rounded-full bg-white/30 backdrop-blur-sm flex gap-2 items-center shadow"
+              style={{ fontSize: "13px" }}
+            >
+              {Object.entries(
+                message.reactions.reduce((acc, r) => {
+                  if (r.emoji) acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                  return acc;
+                }, {})
+              ).map(([emoji, count]) => (
+                <span
+                  key={emoji}
+                  className="flex items-center gap-1 px-1"
+                >
+                  {emoji} {count}
+                </span>
+              ))}
+            </div>
+          )}
 
-          {/* Emoji Picker Dropdown (anchored to emoji button, blocks screen) */}
+          {/* Emoji Picker Dropdown */}
           {showPicker && (
             <>
-              {/* Overlay to block the screen */}
               <div
                 className="fixed inset-0 z-40 bg-black/30"
                 onClick={() => setShowPicker(false)}
               />
-              {/* Picker positioned next to emoji button */}
               <div
                 className={`absolute ${
-                  itsMe ? "left-[-180px]" : "right-[-180px]"
-                } top-1 bg-white text-black p-2 rounded shadow-lg z-50 flex flex-row gap-1 w-max`}
+                  itsMe ? "right-[-10px]" : "left-[-10px]"
+                } top-10 bg-white text-black p-2 rounded shadow-lg z-50 flex flex-row gap-1 w-max`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {reactionEmojis.map((emoji) => (
@@ -186,15 +203,6 @@ function Message({ message }) {
             </>
           )}
         </div>
-      </div>
-      {/* Timestamp below the bubble */}
-      <div
-        className={`text-[10px] text-gray-400 px-4 ${
-          itsMe ? "text-right" : "text-left"
-        }`}
-        style={{ marginTop: "-8px", marginBottom: "8px" }}
-      >
-        {formattedTime}
       </div>
     </>
   );
