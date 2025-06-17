@@ -68,9 +68,11 @@ function Settings() {
         const updatedUser = { ...authUser.user, profile_pic: uploadedImage.url };
         setAuthUser({ ...authUser, user: updatedUser });
 
-        await axios.put(`${import.meta.env.VITE_BACKEND_URL}/user/update-profile_pic`, {
-          profile_pic: uploadedImage.url,
-        });
+        await axios.put(
+          `${import.meta.env.VITE_BACKEND_URL}/user/update-profile_pic`,
+          { profile_pic: uploadedImage.url },
+          { withCredentials: true } // <-- add this line
+        );
 
         toast.success("Profile picture updated");
       } else {

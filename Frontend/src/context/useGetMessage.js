@@ -10,18 +10,18 @@ const useGetMessage = () => {
       setLoading(true);
       if (selectedConversation && selectedConversation._id) {
         try {
-          const res= await axios.get(
+          const res = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/message/get/${selectedConversation._id}`,
             {
-              withCredentials: true, // ✅ Ensures cookies (JWT) are sent
+              withCredentials: true,
               headers: {
                 "Content-Type": "application/json",
               },
             }
           );
-          
-          setMessage(res.data);
-
+          // Ensure messages is always an array
+          const data = Array.isArray(res.data) ? res.data : [res.data];
+          setMessage(data);
           setLoading(false);
         } catch (error) {
           console.log("Error in getting messages", error);

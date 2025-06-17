@@ -32,6 +32,7 @@ const useGetSocketMessage = () => {
 
     socket.on("reaction-updated", ({ messageId, userId, emoji }) => {
       setMessage((prevMessages) => {
+        if (!Array.isArray(prevMessages)) return [];
         return prevMessages.map((msg) => {
           if (msg._id === messageId) {
             let reactions = msg.reactions ? [...msg.reactions] : [];

@@ -8,6 +8,8 @@ function Messages() {
   useGetSocketMessage(); // listing incoming messages
   console.log(messages);
 
+  const safeMessages = Array.isArray(messages) ? messages : [];
+
   const lastMsgRef = useRef();
   useEffect(() => {
     setTimeout(() => {
@@ -26,15 +28,15 @@ function Messages() {
       {loading ? (
         <Loading />
       ) : (
-        messages.length > 0 &&
-        messages.map((message) => (
+        safeMessages.length > 0 &&
+        safeMessages.map((message) => (
           <div key={message._id} ref={lastMsgRef}>
             <Message message={message} />
           </div>
         ))
       )}
 
-      {!loading && messages.length === 0 && (
+      {!loading && safeMessages.length === 0 && (
         <div>
           <p className="text-center mt-[20%]">
             Say! Hi to start the conversation
