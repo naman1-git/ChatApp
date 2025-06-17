@@ -62,4 +62,39 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
+// Store OTPs in-memory for demo (use Redis or DB for production)
+const deleteAccountOtps = {};
+
+router.post('/send-delete-otp', async (req, res) => {
+  const { email } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  deleteAccountOtps[email] = otp;
+  try {
+    await sendOTPEmail(email, otp);
+    res.status(200).json({ message: 'OTP sent for account deletion' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to send OTP' });
+  }
+});
+
+router.post('/verify-delete-otp', async (req, res) => {
+  const { email, otp } = req.body;
+  if (deleteAccountOtps[email] === otp) {
+    delete deleteAccountOtps[email];
+    return res.status(200).json({ verified: true });
+  }
+  res.status(400).json({ error: 'Invalid OTP' });
+});
+
+router.delete('/delete-account', async (req, res) => {
+  const { email } = req.body;
+  try {
+    await User.findOneAndDelete({ email });
+    res.clearCookie("jwt");
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete account" });
+  }
+});
+
 export default router;

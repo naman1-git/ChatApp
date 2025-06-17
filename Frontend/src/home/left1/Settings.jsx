@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthProvider";
 import { FiPlus } from "react-icons/fi";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
 function Settings() {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -14,6 +15,12 @@ function Settings() {
   const [newPic, setNewPic] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [authUser, setAuthUser] = useAuth();
+  const [showDeleteOtp, setShowDeleteOtp] = useState(false);
+  const [deleteOtp, setDeleteOtp] = useState("");
+  const [deleteOtpSent, setDeleteOtpSent] = useState(false);
+  const [deleteOtpVerified, setDeleteOtpVerified] = useState(false);
+  const [sureDelete, setSureDelete] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpenSettings = () => {
     setSettingsOpen(true);
@@ -84,6 +91,52 @@ function Settings() {
     }
 
     setIsUploading(false);
+  };
+
+  const handleSendDeleteOtp = async () => {
+    try {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/send-delete-otp`, {
+        email: authUser.user.email,
+      });
+      setDeleteOtpSent(true);
+      toast.success("OTP sent to your email");
+    } catch {
+      toast.error("Failed to send OTP");
+    }
+  };
+
+  const handleVerifyDeleteOtp = async () => {
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/verify-delete-otp`, {
+        email: authUser.user.email,
+        otp: deleteOtp,
+      });
+      if (res.data.verified) {
+        setDeleteOtpVerified(true);
+        toast.success("OTP verified. Please confirm deletion.");
+      }
+    } catch {
+      toast.error("Invalid OTP");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!sureDelete) {
+      toast.error("Please confirm deletion");
+      return;
+    }
+    try {
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/user/delete-account`, {
+        data: { email: authUser.user.email },
+        withCredentials: true,
+      });
+      toast.success("Account deleted");
+      localStorage.removeItem("ChatApp");
+      setAuthUser(null);
+      navigate("/signup");
+    } catch {
+      toast.error("Failed to delete account");
+    }
   };
 
   return (
@@ -177,6 +230,88 @@ function Settings() {
                   </ul>
                 )}
               </div>
+            )}
+
+            {/* Delete Account Section */}
+            <div className="mt-6">
+              <button
+                onClick={() => setShowDeleteOtp(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 w-full"
+              >
+                Delete Account
+              </button>
+            </div>
+
+            {/* OTP Modal */}
+            {showDeleteOtp && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 flex justify-center items-center z-50"
+              >
+                <div className="bg-white rounded-xl p-6 w-[400px] shadow-2xl relative text-center">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Delete Account</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Are you sure you want to delete your account? This action is irreversible.
+                  </p>
+
+                  {!deleteOtpSent ? (
+                    <button
+                      onClick={handleSendDeleteOtp}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mb-4"
+                    >
+                      Send OTP to Email
+                    </button>
+                  ) : (
+                    <div className="mb-4">
+                      <input
+                        type="text"
+                        className="w-40 p-2 rounded bg-gray-200 border border-gray-400 text-gray-800" // <-- add text-gray-800
+                        placeholder="Enter OTP"
+                        value={deleteOtp}
+                        onChange={(e) => setDeleteOtp(e.target.value)}
+                        maxLength={6}
+                      />
+                      <button
+                        onClick={handleVerifyDeleteOtp}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full"
+                      >
+                        Verify OTP
+                      </button>
+                    </div>
+                  )}
+
+                  {deleteOtpVerified && (
+                    <div className="flex items-center justify-center mb-4">
+                      <input
+                        type="checkbox"
+                        checked={sureDelete}
+                        onChange={(e) => setSureDelete(e.target.checked)}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-gray-600">
+                        I confirm I want to delete my account
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between gap-2">
+                    <button
+                      onClick={() => setShowDeleteOtp(false)}
+                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 w-full"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 w-full"
+                    >
+                      Confirm Delete
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
             )}
 
             <button
