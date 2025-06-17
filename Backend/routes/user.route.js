@@ -39,5 +39,27 @@ router.post('/send-otp', async (req, res) => {
     res.status(500).json({ error: 'Failed to send OTP' });
   }
 });
+router.post('/reset-password', async (req, res) => {
+  const { email, password, confirmPassword } = req.body;
+  try {
+    if (!email || !password || !confirmPassword) {
+      return res.status(400).json({ error: "All fields required" });
+    }
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords do not match" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const bcrypt = (await import("bcryptjs")).default;
+    const hashPassword = await bcrypt.hash(password, 10);
+    user.password = hashPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 export default router;

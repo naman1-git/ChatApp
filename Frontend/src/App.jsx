@@ -3,6 +3,8 @@ import Left from "./home/Leftpart/Left";
 import Right from "./home/Rightpart/Right";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 import { useAuth } from "./context/AuthProvider";
 import { Toaster } from "react-hot-toast";
 import SideBar from "./home/left1/SideBar";
@@ -40,6 +42,8 @@ function App() {
           path="/signup"
           element={authUser ? <Navigate to="/" /> : <Signup />}
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
       <Toaster />
     </>
@@ -60,4 +64,3 @@ export default App;
 
 
 
- 

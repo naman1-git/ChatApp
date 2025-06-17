@@ -124,6 +124,14 @@ function Login() {
               Sign up
             </Link>
           </p>
+          <p className="text-gray-400 text-center mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              Forgot Password?
+            </Link>
+          </p>
         </form>
       </div>
     </div>
