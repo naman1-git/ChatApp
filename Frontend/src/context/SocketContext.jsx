@@ -15,7 +15,7 @@ export const SocketProvider = ({ children }) => {
   //bhai change krdio yha
   useEffect(() => {
     if (authUser) {
-      const socket = io("http://localhost:4002", {
+      const socket = io("https://chatapp-1-7iuz.onrender.com", {
         query: {
           userId: authUser.user._id,
         },
