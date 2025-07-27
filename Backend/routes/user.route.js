@@ -39,6 +39,7 @@ router.post('/send-otp', async (req, res) => {
     res.status(500).json({ error: 'Failed to send OTP' });
   }
 });
+
 router.post('/reset-password', async (req, res) => {
   const { email, password, confirmPassword } = req.body;
   try {
