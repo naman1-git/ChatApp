@@ -32,7 +32,7 @@ function Gemini() {
   
     try {
       const res = await axios.post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDw1j5_9faqWNdS7Ui-54nrRVejJPu8u6M",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyCdHIwoRDdveRBe-YCFykcS2U6Lwp_76j8",
         {
           contents: [{
             parts: [{
