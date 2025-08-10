@@ -36,7 +36,7 @@ function App() {
         />
         <Route
           path="/signup"
-          element={authUser ? <Navigate to="/login" /> : <Signup />}
+          element={authUser ? <Navigate to="/" /> : <Signup />}
         />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
