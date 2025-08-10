@@ -3,6 +3,10 @@ import Message from "../models/message.model.js";
 import { io, getReceiverSocketId } from "../SocketIO/server.js";
 import dotenv from "dotenv";
 dotenv.config(); 
+import moment from "moment-timezone";
+
+const userTimeZone = "Asia/Kolkata"; // or detect from user profile
+const utcDate = moment.tz(sendAt, userTimeZone).utc().toDate();
 
 export const agenda = new Agenda({ db: { address: process.env.MONGODB_URL, collection: "scheduledJobs" } });
 
