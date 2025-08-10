@@ -6,6 +6,7 @@ import EmojiPicker from "emoji-picker-react";
 import { useSocketContext } from "../../context/SocketContext.jsx";
 import useConversation from "../../statemanage/useConversation.js";
 import axios from "axios";
+import moment from "moment-timezone";
 
 
 
@@ -36,7 +37,7 @@ function Typesend() {
     try {
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/message/schedule`, {
         message,
-        sendAt: scheduleTime,
+        sendAt: moment.tz(scheduleTime, moment.tz.guess()).utc().toISOString(),
         receiverId: selectedConversation._id,
       }, { withCredentials: true });
 
