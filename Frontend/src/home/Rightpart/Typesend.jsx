@@ -37,7 +37,7 @@ function Typesend() {
     try {
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/message/schedule`, {
         message,
-        sendAt: moment.tz(scheduleTime, moment.tz.guess()).utc().toISOString(),
+        sendAt: scheduleTime, // raw datetime from input
         receiverId: selectedConversation._id,
       }, { withCredentials: true });
 
