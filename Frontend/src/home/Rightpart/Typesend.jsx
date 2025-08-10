@@ -8,8 +8,6 @@ import useConversation from "../../statemanage/useConversation.js";
 import axios from "axios";
 import moment from "moment-timezone";
 
-
-
 function Typesend() {
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
@@ -31,18 +29,41 @@ function Typesend() {
     setShowEmojiPicker(false);
   };
 
-  const sendAtIST = moment.tz(selectedDateTime, "Asia/Kolkata").format(); // sends IST timestamp
-
+  // Convert scheduleTime (local string) to IST ISO string
+  // scheduleTime is in "YYYY-MM-DDTHH:mm" format, no timezone info
+  const getISTDateTimeString = () => {
+    if (!scheduleTime) return null;
+    // Parse scheduleTime as local time then convert to Asia/Kolkata
+    // We treat scheduleTime as local time (browser local)
+    // Convert to moment, then convert to Asia/Kolkata timezone preserving local time
+    const m = moment(scheduleTime); // moment parses local time by default
+    // Then convert this local time to Asia/Kolkata time zone preserving the time (so it becomes IST datetime)
+    const istMoment = m.tz("Asia/Kolkata", true); // `true` keeps the local time unchanged but assigns IST tz
+    return istMoment.toISOString(); // send in ISO format with timezone info
+  };
 
   const handleSchedule = async () => {
-    if (!message.trim() || !scheduleTime) return;
+    if (!message.trim() || !scheduleTime) {
+      alert("Please enter message and schedule time");
+      return;
+    }
+
+    const sendAtIST = getISTDateTimeString();
+    if (!sendAtIST) {
+      alert("Invalid schedule time");
+      return;
+    }
 
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/message/schedule`, {
-        message,
-        sendAt: sendAtIST, 
-        receiverId: selectedConversation._id,
-      }, { withCredentials: true });
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/message/schedule`,
+        {
+          message,
+          sendAt: sendAtIST,
+          receiverId: selectedConversation._id,
+        },
+        { withCredentials: true }
+      );
 
       alert("Message scheduled successfully");
       setMessage("");
@@ -134,7 +155,6 @@ function Typesend() {
                 if (showEmojiPicker) setShowEmojiPicker(false);
               }}
               className="w-full py-3 px-5 rounded-full bg-slate-700/80 text-white border-none outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400 shadow-inner"
-              // Removed dynamic paddingTop so input height stays the same
             />
           </div>
 
