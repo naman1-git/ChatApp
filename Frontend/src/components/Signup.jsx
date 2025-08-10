@@ -112,6 +112,10 @@ function Signup() {
             toast.success("Signup successful");
             localStorage.setItem("ChatApp", JSON.stringify(response.data));
             setAuthUser(response.data);
+            toast.success("Signup successful");
+            localStorage.removeItem("ChatApp");  // optionally clear stored user
+            setAuthUser(null);                   // reset auth state
+            navigate("/login");   
           }
         } catch (error) {
           if (error.response) {
