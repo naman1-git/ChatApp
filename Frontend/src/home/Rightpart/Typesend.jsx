@@ -31,13 +31,16 @@ function Typesend() {
     setShowEmojiPicker(false);
   };
 
+  const sendAtIST = moment.tz(selectedDateTime, "Asia/Kolkata").format(); // sends IST timestamp
+
+
   const handleSchedule = async () => {
     if (!message.trim() || !scheduleTime) return;
 
     try {
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/message/schedule`, {
         message,
-        sendAt: scheduleTime, // raw datetime from input
+        sendAt: sendAtIST, 
         receiverId: selectedConversation._id,
       }, { withCredentials: true });
 
