@@ -23,14 +23,33 @@ const createOTPEmailTemplate = (otp) => {
 };
 
 // Send email function
-export const sendOTPEmail = async (email, otp) => {
-  const mailOptions = {
-    from: "namanadlakha9311@gmail.com",
-    to: email,
-    subject: 'Verify Your Email - OTP',
-    html: createOTPEmailTemplate(otp)
-  };
+// export const sendOTPEmail = async (email, otp) => {
+//   const mailOptions = {
+//     from: "namanadlakha9311@gmail.com",
+//     to: email,
+//     subject: 'Verify Your Email - OTP',
+//     html: createOTPEmailTemplate(otp)
+//   };
 
-  return transporter.sendMail(mailOptions);
+//   return transporter.sendMail(mailOptions);
+// };
+
+export const sendOTPEmail = async (email, otp) => {
+  try {
+    const mailOptions = {
+      from: "namanadlakha9311@gmail.com",
+      to: email,
+      subject: 'Verify Your Email - OTP',
+      html: createOTPEmailTemplate(otp)
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent:", info.response);
+    return info;
+  } catch (error) {
+    console.error("❌ Error sending OTP email:", error);
+    throw error;
+  }
 };
+
 
